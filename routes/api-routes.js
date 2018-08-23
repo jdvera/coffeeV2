@@ -13,7 +13,7 @@ module.exports = function(app) {
     // They won't get this or even be able to access this page if they aren't authed
     
     
-    if(!req.body.groupNum) {
+    if(!req.body.isJoining) {
       req.body.groupNum = (Math.random() + " ").substring(2,10) + (Math.random() + " ").substring(2,10);
         
       db.Groups.create({ groupNum: req.body.groupNum }).then(function(dbGroup){
@@ -33,7 +33,11 @@ module.exports = function(app) {
   var createUserGroup = function(req, res) {
     db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: true }).then(function(dbUserGroups){
       console.log(" --- Created UserGroup Successfully --- ");
-      res.json([dbUserGroups.id, dbUserGroups.groupNum, dbUserGroups.isCreator]);
+      res.json({
+        userGroupId: dbUserGroups.id, 
+        groupNum: dbUserGroups.groupNum, 
+        isCreator: dbUserGroups.isCreator
+      });
     }).catch(function(err) {
       console.log(" -------- db.UserGroups error -------- ");
       console.log(err);
@@ -63,7 +67,7 @@ module.exports = function(app) {
   // Route for logging user out
   app.get("/logout", function(req, res) {
     req.logout();
-    res.redirect("/");
+    res.send(true);
   });
 
   // Route for getting some data about our user to be used client side

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './App.css';
-import Home from "./pages/Home";
+import Main from "./pages/Main";
 // import Join from "./pages/Join";
 import Results from "./pages/Results";
 // import New from "./pages/New";
@@ -15,8 +15,8 @@ class App extends Component {
     return (
       <Router>
 				<Switch>
-					<Route exact path="/" component={Home} />
-					<Route path="/join" component={Home} />
+					<Route exact path="/" component={Main} />
+					<Route path="/join" component={Main} />
 					<Route path="/loading" component={Loading} />
 					<Route path="/results" component={Results} />
 					<Route component={FourOhFour} />

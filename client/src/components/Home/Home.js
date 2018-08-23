@@ -1,20 +1,38 @@
 import React from "react";
-import "./GroupForm.css";
+import "./Home.css";
+import GroupForm from "../GroupForm";
 
-const GroupForm = props =>
+const Home = props =>
 
-	<form>
-		<div className="form-group">
-			<div className="form-header">Your Screen Name</div>
-			<input type="text" className="form-control" placeholder="Screen Name" name="username" value={props.state.username} onChange={props.handleInputChange} />
+	<div className="container">
+		<div className="row">
+				<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="imgStyle" />
 		</div>
-		<div className="form-group">
-			<div className="form-header">Password</div>
-			<input type="password" className="form-control" placeholder="Password" name="password" value={props.state.password} onChange={props.handleInputChange} />
-			<input type="password" id="retype" className="form-control" placeholder="Re-Type Password" name="retype" style={props.state.newUser ? { display: "block" } : { display: "none" }} value={props.state.retype} onChange={props.handleInputChange} />
-		</div>
-		<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
-		<button onClick={props.handleGroupSubmit}>Submit</button>
-	</form>
 
-export default GroupForm;
+		<div className="row">
+			<div className="" id="fontStyle">coffee</div>
+			<div className="" id="fontStyle2">connection</div>
+		</div>
+
+		<p id="genText1">create a new group</p>
+		
+		<div className="row">
+			<button name="newUser" value="true" onClick={props.handleInputChange}>new user</button>
+		</div>
+		
+		<div className="row">
+			<button name="newUser" value="false" onClick={props.handleInputChange}>login</button>
+		</div>
+
+		<p id="genText2">to join an existing group, use the url provided to the one who made it</p>	
+
+		<div id="overlay">
+			<br />
+			<GroupForm state={props.state} handleGroupSubmit={props.handleGroupSubmit} handleInputChange={props.handleInputChange} />
+			<br />
+		</div>
+
+		<div id="overlay-background" onClick={props.handleOverlay}></div>
+	</div>
+
+export default Home;

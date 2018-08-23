@@ -1,17 +1,25 @@
 import React, { Component } from "react";
-import "./Home.css";
+import "./Main.css";
 import API from "../../utils/API";
-import GroupForm from "../../components/GroupForm";
+import Home from "../../components/Home";
+import Results from "../../components/Results";
 
-class Home extends Component {
+class Main extends Component {
 
+
+//  ----- State and General Functions
+	
 	state = {
 		username: "",
 		password: "",
 		retype: "",
 		newUser: false,
 		message: "",
-		groupNum: window.location.pathname.split("/")[2] || null
+		groupNum: window.location.pathname.split("/")[2] || null,
+		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
+		showResults: false,
+		userGroupId: null,
+		isCreator: null
 	};
 
 	handleInputChange = event => {
@@ -44,6 +52,9 @@ class Home extends Component {
 			this.handleOverlay();
 		}
 	};
+
+
+//  ----- Home-specific fucntions
 
 	handleOverlay = () => {
 		const overlayBackground = document.getElementById("overlay-background");
@@ -90,7 +101,8 @@ class Home extends Component {
 		const apiObj = {
 			username: this.state.username,
 			password: this.state.password,
-			groupNum: this.state.groupNum
+			groupNum: this.state.groupNum,
+			isJoining: this.state.isJoining
 		};
 
 		if(this.state.newUser) {
@@ -101,7 +113,11 @@ class Home extends Component {
 		}
 
 		apiCall(apiObj).then(res => {
-			console.log(res.data);
+			res.data.showResults = true;
+			this.setState(res.data, () => {
+				console.log("Updated state with following data:");
+				console.log(res.data);
+			})
 			// window.location.replace(res.data);
 		}).catch(err => {
 			console.log(err.response);
@@ -121,56 +137,37 @@ class Home extends Component {
 		});
 	};
 
+
+//  ----- Results-specific functions
+
 	handleLogout = event =>{
 		event.preventDefault();
-		API.logout().then(res => {
-			console.log(res.data);
-            if (res.data) {
-                console.log("Logout successful");
-                window.location.href = "/";
-            }
-            else {
-                console.log("Home.js - handleLogout - 'Something went wrong'");
-            }
+		API.logout().then((res) => {
+			console.log("Logout response:", res);
+			this.setState({
+				username: "",
+				password: "",
+				retype: "",
+				newUser: false,
+				message: "",
+				groupNum: window.location.pathname.split("/")[2] || null,
+				isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
+				showResults: false,
+				userGroupId: null,
+				isCreator: null
+			}, () => { console.log("Logout successful"); });
         }).catch(err => console.log(err));
 	};
 
+
 	render() {
 		return (
-			<div className="container">
-
-				<div className="row">
-						<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="imgStyle" />
-				</div>
-
-				<div className="row">
-					<div className="" id="fontStyle">coffee</div>
-					<div className="" id="fontStyle2">connection</div>
-				</div>
-
-				<p id="genText1">create a new group</p>
-				
-				<div className="row">
-					<button name="newUser" value="true" onClick={this.handleInputChange}>new user</button>
-				</div>
-				
-				<div className="row">
-					<button name="newUser" value="false" onClick={this.handleInputChange}>login</button>
-				</div>
-
-				<p id="genText2">to join an existing group, use the url provided to the one who made it</p>	
-
-				<div id="overlay">
-					<br />
-					<GroupForm state={this.state} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} />
-					<br />
-				</div>
-
-				<div id="overlay-background" onClick={this.handleOverlay}>
-				</div>
+			<div className="main-container">
+				{ !this.state.showResults ? <Home state={this.state} handleOverlay={this.handleOverlay} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} />
+				: <Results state={this.state} handleInputChange={this.handleInputChange} handleLogout={this.handleLogout} /> }
 			</div>
 		);
 	};
 }
 
-export default Home;
+export default Main;
