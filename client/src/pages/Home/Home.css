@@ -25,3 +25,12 @@
     background: black;
     opacity: 0.3;
  }
+
+#genText1, #genText2 {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+}
+
+#genText1 {
+    font-size: 26px;
+}

@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Join from "./pages/Join";
 import Results from "./pages/Results";
 // import New from "./pages/New";
-// import Loading from "./pages/Loading";
+import Loading from "./pages/Loading";
 import FourOhFour from "./pages/FourOhFour";
 
 
@@ -16,6 +16,7 @@ class App extends Component {
       <Router>
 				<Switch>
 					<Route exact path="/" component={Home} />
+					<Route path="/loading" component={Loading} />
 					<Route path="/results" component={Results} />
 					<Route path="/join" component={Join} />
 					<Route component={FourOhFour} />

@@ -6,24 +6,32 @@ import GroupForm from "../../components/GroupForm";
 class Home extends Component {
 
 	state = {
-		groupName: "",
-		screenName: "",
+		username: "",
 		password: "",
 		retype: "",
-		message: ""
+		newUser: false,
+		message: "",
+		groupNum: window.location.pathname.split("/")[2] || null
 	};
 
 	handleInputChange = event => {
 		event.preventDefault();
 		let { name, value } = event.target;
+		if(name === "newUser") {
+			value = (value === "true");
+		}
 		this.setState({
 			[name]: value,
 			message: ""
-		}, () => console.log(name + ": " + value));
+		}, () => {
+			console.log(name + ": " + value);
+			if(name === "newUser") {
+				this.handleOverlay();
+			}
+		});
 	};
 
-	handleOverlay = event => {
-		if (event) event.preventDefault();
+	handleOverlay = () => {
 		const overlayBackground = document.getElementById("overlay-background");
 		overlayBackground.style.display = (overlayBackground.style.display === "inline-block") ? "none" : "inline-block";
 		const overlay = document.getElementById("overlay");
@@ -32,41 +40,63 @@ class Home extends Component {
 
 	handleGroupSubmit = event => {
 		event.preventDefault();
-		let newObj = {};
+		let stateObj = {};
 		let callback = this.createGroup;
 
-		if (this.state.password === this.state.retype) {
-			newObj = { message: "" };
+		if(this.state.newUser){
+			if(!this.state.username || !this.state.password || !this.state.retype) {
+				stateObj = { message: "Please fill in all fields"};
+				callback = () => console.log("Some fields left blank");
+			}
+			else if (this.state.password !== this.state.retype) {
+				stateObj = {
+					message: "Passwords do not match",
+					password: "",
+					retype: ""
+				};
+				callback = () => console.log("Passwords didn't match");
+			}
+			else {
+				stateObj = { message: "" };
+			}
 		}
 		else {
-			newObj = {
-				message: "Passwords do not match",
-				password: "",
-				retype: ""
-			};
-			callback = () => console.log("Passwords didn't match");
+			if(!this.state.username || !this.state.password) {
+				stateObj = { message: "Please fill in both fields"};
+				callback = () => console.log("Some fields left blank");
+			}
 		}
+		
 
-		this.setState(newObj, callback);
+		this.setState(stateObj, callback);
 	};
 
-	createGroup = () => API.createGroup({
-		groupName: this.state.groupName,
-		screenName: this.state.screenName,
-		password: this.state.password
-	}).then(res => {
-		window.location.replace(res.data);
-	}).catch(err => {
-		if (err.response.status === 422) {
-			this.setState({
-				message: "Group Name taken"
-			}, () => console.log("Home.js - createGroup - there was an error", this.state.message));
-		}
-	});
+	createGroup = () => {
+		let apiCall;
+		const apiObj = {
+			username: this.state.username,
+			password: this.state.password
+		};
 
-	testJoin = event => {
-		event.preventDefault();
-		window.location.replace("/join/1234");
+		if(this.state.newUser) {
+			apiCall = API.signup;
+		}
+		else {
+			apiCall = API.login;
+		}
+
+		console.log(this.state.groupNum);
+
+		apiCall(apiObj).then(res => {
+			window.location.replace(res.data);
+		}).catch(err => {
+			if (err.response.status === 422) {
+				this.setState({
+					message: "That Screen Name is already taken :(",
+					username: ""
+				}, () => console.log(err.response.data));
+			}
+		});
 	};
 
 	handleLogout = event =>{
@@ -81,13 +111,11 @@ class Home extends Component {
                 console.log("Home.js - handleLogout - 'Something went wrong'");
             }
         }).catch(err => console.log(err));
-	}
+	};
 
 	render() {
 		return (
 			<div className="container">
-				<div className="row">
-				</div>
 
 				<div className="row">
 						<img src="./images/coffeelogoMed.png" alt="logo" id="imgStyle" />
@@ -97,19 +125,22 @@ class Home extends Component {
 					<div className="" id="fontStyle">coffee</div>
 					<div className="" id="fontStyle2">connection</div>
 				</div>
+
+				<p id="genText1">create a new group</p>
 				
 				<div className="row">
-					<button onClick={this.handleOverlay}>create new group</button>
+					<button name="newUser" value="true" onClick={this.handleInputChange}>new user</button>
 				</div>
 				
 				<div className="row">
-					<button onClick={this.testJoin}>test join</button>
+					<button name="newUser" value="false" onClick={this.handleInputChange}>login</button>
 				</div>
 				
-				<div className="row">
+				{/* <div className="row">
 					<button name="get" onClick={this.handleLogout}>logout group</button>
-				</div>
-						
+				</div> */}
+
+				<p id="genText2">to join an existing group, use the url provided to the one who made it</p>	
 
 				<div id="overlay">
 					<br />
