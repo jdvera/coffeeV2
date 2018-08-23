@@ -1,0 +1,11 @@
+.main-wrapper {
+    font-size: 24px;
+}
+
+input {
+    text-align: center;
+}
+
+.loadingGif {
+    margin: 30px auto;
+}

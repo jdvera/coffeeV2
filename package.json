@@ -1,23 +1,44 @@
 {
-  "name": "1-Passport-Example",
+  "name": "coffeeConnect",
   "version": "1.0.0",
-  "description": "",
+  "description": "**Coffee Connection** is a mobile-first app designed to help remote teams communicate and find nearby coffee shops and cafes where they can connect and get work done. Using the power of Google Maps API, Coffee Connect identifies venues that are conveniently located, displays business hours and other info, and shows the most convenient routes to get there. This project utilizes Passport, Express, Sequelize and BCrypt on the back end, Firebase and MySQL for database support, and CSS3 and Bootstrap a lightweight responsive front end design.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "server": "node server.js",
+    "client": "node scripts/start-client.js",
+    "start": "concurrently \"nodemon server.js\" \"npm run client\"",
+    "build": "node scripts/build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdvera/coffeeConnect.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jdvera/coffeeConnect/issues"
+  },
+  "homepage": "https://github.com/jdvera/coffeeConnect#readme",
   "dependencies": {
+    "bcrypt": "^2.0.1",
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "express-session": "^1.14.2",
-    "mysql2": "^1.3.6",
-    "passport": "^0.3.2",
+    "body-parser": "^1.18.3",
+    "connect-flash": "^0.1.1",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "mysql2": "^1.5.3",
+    "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "sequelize": "^4.3.1"
+    "path": "^0.12.7",
+    "react": "^16.4.0",
+    "react-copy-to-clipboard": "^5.0.1",
+    "react-media": "^1.8.0",
+    "sequelize": "^4.37.10"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "nodemon": "^1.17.5"
   }
 }
