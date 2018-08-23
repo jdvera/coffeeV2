@@ -17,6 +17,7 @@ class Home extends Component {
 	handleInputChange = event => {
 		event.preventDefault();
 		let { name, value } = event.target;
+		const newUserOldValue = this.state.newUser;
 		if(name === "newUser") {
 			value = (value === "true");
 		}
@@ -26,9 +27,22 @@ class Home extends Component {
 		}, () => {
 			console.log(name + ": " + value);
 			if(name === "newUser") {
-				this.handleOverlay();
+				this.checkNewUserVal(newUserOldValue);
 			}
 		});
+	};
+
+	checkNewUserVal = newUserOldValue => {
+		if(newUserOldValue !== this.state.newUser) {
+			this.setState({
+				username: "",
+				password: "",
+				retype: ""
+			}, this.handleOverlay);
+		}
+		else {
+			this.handleOverlay();
+		}
 	};
 
 	handleOverlay = () => {
@@ -40,6 +54,7 @@ class Home extends Component {
 
 	handleGroupSubmit = event => {
 		event.preventDefault();
+
 		let stateObj = {};
 		let callback = this.createGroup;
 
@@ -67,7 +82,6 @@ class Home extends Component {
 			}
 		}
 		
-
 		this.setState(stateObj, callback);
 	};
 
@@ -75,7 +89,8 @@ class Home extends Component {
 		let apiCall;
 		const apiObj = {
 			username: this.state.username,
-			password: this.state.password
+			password: this.state.password,
+			groupNum: this.state.groupNum
 		};
 
 		if(this.state.newUser) {
@@ -85,15 +100,22 @@ class Home extends Component {
 			apiCall = API.login;
 		}
 
-		console.log(this.state.groupNum);
-
 		apiCall(apiObj).then(res => {
-			window.location.replace(res.data);
+			console.log(res.data);
+			// window.location.replace(res.data);
 		}).catch(err => {
+			console.log(err.response);
 			if (err.response.status === 422) {
 				this.setState({
 					message: "That Screen Name is already taken :(",
 					username: ""
+				}, () => console.log(err.response.data));
+			}
+			else if (err.response.status === 401) {
+				this.setState({
+					message: "Screen Name or Password incorrect",
+					username: "",
+					password: ""
 				}, () => console.log(err.response.data));
 			}
 		});
@@ -118,7 +140,7 @@ class Home extends Component {
 			<div className="container">
 
 				<div className="row">
-						<img src="./images/coffeelogoMed.png" alt="logo" id="imgStyle" />
+						<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="imgStyle" />
 				</div>
 
 				<div className="row">
@@ -135,10 +157,6 @@ class Home extends Component {
 				<div className="row">
 					<button name="newUser" value="false" onClick={this.handleInputChange}>login</button>
 				</div>
-				
-				{/* <div className="row">
-					<button name="get" onClick={this.handleLogout}>logout group</button>
-				</div> */}
 
 				<p id="genText2">to join an existing group, use the url provided to the one who made it</p>	
 

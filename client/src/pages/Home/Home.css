@@ -23,7 +23,8 @@
     text-align:center;
     z-index: 999;
     background: black;
-    opacity: 0.3;
+    opacity: 0.55;
+    border-radius: 20px;
  }
 
 #genText1, #genText2 {

@@ -13,10 +13,32 @@ module.exports = function(app) {
     // They won't get this or even be able to access this page if they aren't authed
     
     
+    if(!req.body.groupNum) {
+      req.body.groupNum = (Math.random() + " ").substring(2,10) + (Math.random() + " ").substring(2,10);
+        
+      db.Groups.create({ groupNum: req.body.groupNum }).then(function(dbGroup){
+        createUserGroup(req, res);
+      }).catch(function(err) {
+        console.log(" ---------- db.Groups error ---------- ");
+        console.log(err);
+      });
+    }
+    else{
+      createUserGroup(req, res);
+    }
     
-    
-    res.json("/loading");
+    // res.json("/loading");
   });
+
+  var createUserGroup = function(req, res) {
+    db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: true }).then(function(dbUserGroups){
+      console.log(" --- Created UserGroup Successfully --- ");
+      res.json([dbUserGroups.id, dbUserGroups.groupNum, dbUserGroups.isCreator]);
+    }).catch(function(err) {
+      console.log(" -------- db.UserGroups error -------- ");
+      console.log(err);
+    });
+  }
 
   // Route for signing up a user. The user's password is automatically hashed and stored securely thanks to
   // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
