@@ -24,6 +24,17 @@ require("./routes/api-routes.js")(app);
 db.sequelize.sync({ force: true }).then(function() {
   app.listen(PORT, function() {
     console.log("==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
-    db.Users.create({ username: "asdf", password: "asdf" }).then(function(){console.log("test user 'asdf' created");});
+    db.Users.create({ username: "asdf", password: "asdf" }).then(function(){
+      console.log("test user 'asdf' created");
+      db.Groups.create({ groupNum: "1234" }).then(function(){
+        console.log("test group '1234' created");
+        db.UserGroups.create({ userId: "1", groupNum: "1234", isCreator: true }).then(function(){
+          console.log("test userGroup created");
+          console.log(" ------------------------------------------- ");
+          console.log(" ---------- END OF SERVER STARTUP ---------- ");
+          console.log(" ------------------------------------------- ");
+        });
+      });
+    });
   });
 });

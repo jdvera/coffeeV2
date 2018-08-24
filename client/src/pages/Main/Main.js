@@ -19,7 +19,9 @@ class Main extends Component {
 		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 		showResults: false,
 		userGroupId: null,
-		isCreator: null
+		isCreator: null,
+		url: null,
+		copied: false
 	};
 
 	handleInputChange = event => {
@@ -105,6 +107,9 @@ class Main extends Component {
 			isJoining: this.state.isJoining
 		};
 
+		console.log("What I'm sending to server");
+		console.log(apiObj);
+
 		if(this.state.newUser) {
 			apiCall = API.signup;
 		}
@@ -114,9 +119,11 @@ class Main extends Component {
 
 		apiCall(apiObj).then(res => {
 			res.data.showResults = true;
+			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
 			this.setState(res.data, () => {
 				console.log("Updated state with following data:");
 				console.log(res.data);
+				this.handleOverlay()
 			})
 			// window.location.replace(res.data);
 		}).catch(err => {
@@ -140,6 +147,10 @@ class Main extends Component {
 
 //  ----- Results-specific functions
 
+	handleClipboard = () => {
+		this.setState({ copied: true });
+	}
+
 	handleLogout = event =>{
 		event.preventDefault();
 		API.logout().then((res) => {
@@ -154,7 +165,9 @@ class Main extends Component {
 				isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 				showResults: false,
 				userGroupId: null,
-				isCreator: null
+				isCreator: null,
+				url: null,
+				copied: false
 			}, () => { console.log("Logout successful"); });
         }).catch(err => console.log(err));
 	};
@@ -164,7 +177,7 @@ class Main extends Component {
 		return (
 			<div className="main-container">
 				{ !this.state.showResults ? <Home state={this.state} handleOverlay={this.handleOverlay} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} />
-				: <Results state={this.state} handleInputChange={this.handleInputChange} handleLogout={this.handleLogout} /> }
+				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
 			</div>
 		);
 	};

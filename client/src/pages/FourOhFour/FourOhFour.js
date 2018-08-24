@@ -4,9 +4,13 @@ import "./FourOhFour.css";
 class FourOhFour extends Component {
     render(){
         return (
-            <div className="container">
+            <div className="error-container">
                 <div className="row">
-                    <img src="./images/coffeebrokenNEW.png" alt="404" id="imgStyle" />
+                    {/* intentionally left blank */}
+                </div>
+
+                <div className="row">
+                    <img src={window.location.origin + "/images/coffeebrokenNEW.png"} alt="404" id="imgStyle" />
                 </div>	
                 
                 <div className="row" id="fontStyle">

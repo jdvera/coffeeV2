@@ -2,23 +2,28 @@
     font-family: 'Roboto', sans-serif;
 }
 
-.form-control {
-    margin-top: 8px;
+#top-buttons {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    padding: 0px 20px;
+    text-align: center;
 }
 
-#pass-check {
-    margin: "0px 10px 0px 0px"
+#first-button {
+    grid-column-start: 1;
+    grid-column-end: 2;
 }
 
-#message {
-    font-size: 10pt;
-    min-height: 55px;
+#second-button {
+    grid-column-start: 2;
+    grid-column-end: 3;
 }
 
-#retype {
-    margin-top: 16px;
+#third-button {
+    grid-column-start: 3;
+    grid-column-end: 4;
 }
 
-.form-group {
-    margin-bottom: 30px;
+#url-button {
+    width: 180px;
 }

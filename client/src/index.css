@@ -7,7 +7,7 @@ body {
 
 /* BASIC ARCHITECTURE STYLE */
 
-.container{
+.home-container, .results-container, .error-container {
   display: grid;
   margin: auto;
   padding: 20px;
@@ -25,7 +25,7 @@ body {
   background-color: transparent;
 }
 
-.container2{
+/* .container2{
   display: grid;
   margin: auto;
   margin-top: 10px;
@@ -43,7 +43,7 @@ body {
   right: 0;
   left: 0;
   background-color: transparent;
-}
+} */
 
 .row {
     text-align: center;
@@ -96,8 +96,6 @@ form {
 }
 
 /*  GROUPING  */
-.group:before,
-.group:after { content:""; display:table; }
 .group:after { clear:both;}
 .group { zoom:1; /* For IE 6/7 */ }
 

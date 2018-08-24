@@ -14,9 +14,11 @@ module.exports = function(app) {
     
     
     if(!req.body.isJoining) {
+      console.log(" ----- creating brand new group ----- ");
       req.body.groupNum = (Math.random() + " ").substring(2,10) + (Math.random() + " ").substring(2,10);
         
-      db.Groups.create({ groupNum: req.body.groupNum }).then(function(dbGroup){
+      db.Groups.create({ groupNum: req.body.groupNum }).then(function(){
+        console.log(" --- new group created, now usergroup --- ");
         createUserGroup(req, res);
       }).catch(function(err) {
         console.log(" ---------- db.Groups error ---------- ");
@@ -24,14 +26,13 @@ module.exports = function(app) {
       });
     }
     else{
+      console.log(" ----- user joining existing group ----- ");
       createUserGroup(req, res);
     }
-    
-    // res.json("/loading");
   });
 
   var createUserGroup = function(req, res) {
-    db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: true }).then(function(dbUserGroups){
+    db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: !req.body.isJoining }).then(function(dbUserGroups){
       console.log(" --- Created UserGroup Successfully --- ");
       res.json({
         userGroupId: dbUserGroups.id, 

@@ -4,7 +4,11 @@ import GroupForm from "../GroupForm";
 
 const Home = props =>
 
-	<div className="container">
+	<div className="home-container">
+		<div className="row">
+			{/* intentionally left blank */}
+		</div>
+
 		<div className="row">
 				<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="imgStyle" />
 		</div>
@@ -14,7 +18,7 @@ const Home = props =>
 			<div className="" id="fontStyle2">connection</div>
 		</div>
 
-		<p id="genText1">create a new group</p>
+		<p id="genText1">{props.state.isJoining ? "join the group!" : "create a new group"}</p>
 		
 		<div className="row">
 			<button name="newUser" value="true" onClick={props.handleInputChange}>new user</button>
@@ -24,7 +28,7 @@ const Home = props =>
 			<button name="newUser" value="false" onClick={props.handleInputChange}>login</button>
 		</div>
 
-		<p id="genText2">to join an existing group, use the url provided to the one who made it</p>	
+		<p id="genText2">{props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
 
 		<div id="overlay">
 			<br />
