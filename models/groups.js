@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false
     },
-    latAvg: DataTypes.STRING,
-    lngAvg: DataTypes.STRING
+    latAvg: DataTypes.FLOAT,
+    lngAvg: DataTypes.FLOAT
   });
   
   return Groups;
