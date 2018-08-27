@@ -22,8 +22,27 @@
 #third-button {
     grid-column-start: 3;
     grid-column-end: 4;
+
 }
 
 #url-button {
-    width: 180px;
+    width: 100%;
+    max-width: 180px;
 }
+
+#logout-button {
+    background: #ff0000 ;
+}
+
+
+#logout-button:hover {
+    box-shadow: inset 0 0 0 5px #FC9700;
+}
+
+
+/* @media only screen and (max-width: 480px) {
+    #top-buttons {
+        display: block;
+        height: 75px;
+    }
+} */

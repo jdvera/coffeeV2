@@ -1,34 +1,37 @@
 import React from "react";
 import "./Results.css";
+import Map from "../Map";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
-const styles = {
-
-}
 
 const Results = props =>
 
 	<div className="results-container">
 		<div id="top-buttons">
 			<div id="first-button">
-			qwer
+				{/* intentionally blank */}
 			</div>
 			<div id="second-button">
-			asdf
+				{/* intentionally blank */}
 			</div>
 			<div id="third-button">
 			<button id="url-button" onClick={props.handleOverlay}>show url</button>
 			</div>
 		</div>
 
-		<div className="row">
-			The Results Page
+		<div className="row my-map">
+			<Map state={props.state}
+			handleCenterChanged={props.handleCenterChanged}
+			loadingElement={<div style={{ height: `100%` }} />}
+			containerElement={<div style={{ height: `400px` }} />}
+			mapElement={<div style={{ height: `100%` }} />} />
 		</div>
 
-
+		<div className="row">
+			<button name="locationSubmitted" onClick={props.handleLocationSubmit}>{props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
+		</div>
 
 		<div className="row">
-			<button onClick={props.handleLogout}>Logout</button>
+			<button id="logout-button" onClick={props.handleLogout}>Logout</button>
 		</div>
 
 		<div id="overlay">

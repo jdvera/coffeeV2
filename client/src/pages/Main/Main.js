@@ -21,48 +21,49 @@ class Main extends Component {
 		userGroupId: null,
 		isCreator: null,
 		url: null,
-		copied: false
+		copied: false,
+		currentLocation: null,
+		locationSubmitted: false,
 	};
 
 	handleInputChange = event => {
-		event.preventDefault();
 		let { name, value } = event.target;
-		const newUserOldValue = this.state.newUser;
-		if(name === "newUser") {
-			value = (value === "true");
-		}
 		this.setState({
 			[name]: value,
 			message: ""
-		}, () => {
-			console.log(name + ": " + value);
-			if(name === "newUser") {
-				this.checkNewUserVal(newUserOldValue);
-			}
-		});
+		}, () => console.log(name + ": " + value));
 	};
-
-	checkNewUserVal = newUserOldValue => {
-		if(newUserOldValue !== this.state.newUser) {
-			this.setState({
-				username: "",
-				password: "",
-				retype: ""
-			}, this.handleOverlay);
-		}
-		else {
-			this.handleOverlay();
-		}
-	};
-
-
-//  ----- Home-specific fucntions
 
 	handleOverlay = () => {
 		const overlayBackground = document.getElementById("overlay-background");
 		overlayBackground.style.display = (overlayBackground.style.display === "inline-block") ? "none" : "inline-block";
 		const overlay = document.getElementById("overlay");
 		overlay.style.display = (overlay.style.display === "inline-block") ? "none" : "inline-block";
+	};
+
+
+
+//  ----- Home-specific fucntions
+
+	handleNewUser = event => {
+		event.preventDefault();
+		const newUserOldValue = this.state.newUser;
+		let value = (event.target.value === "true");
+
+		this.setState({ newUser: value }, () => {
+			console.log("newUser: " + value);
+			
+			if(newUserOldValue !== this.state.newUser) {
+				this.setState({
+					username: "",
+					password: "",
+					retype: ""
+				}, this.handleOverlay);
+			}
+			else {
+				this.handleOverlay();
+			}
+		});
 	};
 
 	handleGroupSubmit = event => {
@@ -149,7 +150,22 @@ class Main extends Component {
 
 	handleClipboard = () => {
 		this.setState({ copied: true });
+	};
+
+	handleCenterChanged = latLng => {
+		this.setState({ currentLocation: latLng }, () => console.log('currentLocation: ' + latLng));
 	}
+
+	handleLocationSubmit = () => {
+		let value = !(this.state.locationSubmitted);
+		this.setState({ locationSubmitted: value }, () => {
+			console.log("locationSubmitted: " + value);
+
+			if(value === true){
+				console.log(" --- This is where I send stuff to DB --- ");
+			}
+		});
+	};
 
 	handleLogout = event =>{
 		event.preventDefault();
@@ -170,14 +186,42 @@ class Main extends Component {
 				copied: false
 			}, () => { console.log("Logout successful"); });
         }).catch(err => console.log(err));
+	}; 
+
+	
+
+	//  Current Location stuff
+	
+	success = (pos) => {
+		console.log({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+
+		this.setState({
+			currentLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude }
+		}, () => console.log("location found"));
 	};
+	  
+	error = (err) => {
+		console.warn(`ERROR(${err.code}): ${err.message}`);
+	};
+
+	componentDidMount = () => {
+		const options = {
+			enableHighAccuracy: true,
+			timeout: 5000,
+			maximumAge: 0
+		};
+
+		navigator.geolocation.getCurrentPosition(this.success, this.error, options);
+	};
+
+
 
 
 	render() {
 		return (
 			<div className="main-container">
-				{ !this.state.showResults ? <Home state={this.state} handleOverlay={this.handleOverlay} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} />
-				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
+				{ !this.state.showResults ? <Home state={this.state} handleOverlay={this.handleOverlay} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} handleNewUser={this.handleNewUser} />
+				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} handleCenterChanged={this.handleCenterChanged} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
 			</div>
 		);
 	};

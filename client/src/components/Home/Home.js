@@ -21,11 +21,11 @@ const Home = props =>
 		<p id="genText1">{props.state.isJoining ? "join the group!" : "create a new group"}</p>
 		
 		<div className="row">
-			<button name="newUser" value="true" onClick={props.handleInputChange}>new user</button>
+			<button value="true" onClick={props.handleNewUser}>new user</button>
 		</div>
 		
 		<div className="row">
-			<button name="newUser" value="false" onClick={props.handleInputChange}>login</button>
+			<button value="false" onClick={props.handleNewUser}>login</button>
 		</div>
 
 		<p id="genText2">{props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
