@@ -170,7 +170,7 @@ class Main extends Component {
 		if (!this.state.locationSubmitted){
 			stateObj.currentLocation = latLng;
 		}
-		this.setState(stateObj, () => console.log("map is moving"));
+		this.setState(stateObj);
 	}
 
 	handleLocationSubmit = () => {
