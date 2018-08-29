@@ -144,6 +144,9 @@ class Main extends Component {
 
 
 //  ----- Results-specific functions
+	updateMapObject = value => {
+		this.setState({ map: value }, () => console.log("Map object updated"))
+	};
 
 	handleClipboard = () => {
 		this.setState({ copied: true });
@@ -257,7 +260,7 @@ class Main extends Component {
 		return (
 			<div className="main-container">
 				{ !this.state.showResultsPage ? <Home state={this.state} handleOverlay={this.handleOverlay} getUserLocation={this.getUserLocation} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} handleNewUser={this.handleNewUser} />
-				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} handleCenterChanged={this.handleCenterChanged} loadFirebase={this.loadFirebase} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
+				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} updateMapObject={this.updateMapObject} handleCenterChanged={this.handleCenterChanged} loadFirebase={this.loadFirebase} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
 			</div>
 		);
 	};

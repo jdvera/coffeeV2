@@ -5,37 +5,37 @@ import { withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 
 class Map extends Component {
 
-    constructor() {
-        super()
-        this.state = {
-            map: null
-        }
-    }
+    // constructor() {
+    //     super()
+    //     this.state = {
+    //         map: null
+    //     }
+    // }
 
     componentDidMount = () => this.props.loadFirebase();
 
     mapLoaded = map => {
-        if (!this.state.map) {
-            this.setState({ map: map }, console.log("updated map state"));
+        if (!this.props.state.map) {
+            this.props.updateMapObject(map);
         }
     };
 
-    findPlaces = () => {
-        const request = {
-            location: this.props.state.currentLocation,
-            type: ['cafe']
-        };
-        const service = new google.maps.places.PlacesService(this.state.map);
-        this.state.service.nearbySearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK) {
-                console.log(results);
-                // updatePlaces(results);
-            }
-        });
-    };
+    // findPlaces = () => {
+    //     const request = {
+    //         location: this.props.state.currentLocation,
+    //         type: ['cafe']
+    //     };
+    //     const service = new google.maps.places.PlacesService(this.state.map);
+    //     this.state.service.nearbySearch(request, (results, status) => {
+    //         if (status === google.maps.places.PlacesServiceStatus.OK) {
+    //             console.log(results);
+    //             // updatePlaces(results);
+    //         }
+    //     });
+    // };
 
     getCenter = () => {
-        this.props.handleCenterChanged(this.state.map.getCenter());
+        this.props.handleCenterChanged(this.props.state.map.getCenter());
     };
 
     render() {

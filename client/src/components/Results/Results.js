@@ -22,6 +22,7 @@ const Results = props =>
 			<Map state={props.state}
 			handleCenterChanged={props.handleCenterChanged}
 			loadFirebase={props.loadFirebase}
+			updateMapObject={props.updateMapObject}
 			loadingElement={<div style={{ height: `100%` }} />}
 			containerElement={<div style={{ height: `500px` }} />}
 			mapElement={<div style={{ height: `100%` }} />} />
