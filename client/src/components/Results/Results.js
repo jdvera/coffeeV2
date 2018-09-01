@@ -8,13 +8,13 @@ const Results = props =>
 	<div className="results-container">
 		<div id="top-buttons">
 			<div id="first-button">
-				{/* intentionally blank */}
+				<button id="logout-button" onClick={props.handleLogout}>Logout</button>
 			</div>
 			<div id="second-button">
 				{/* intentionally blank */}
 			</div>
 			<div id="third-button">
-			<button id="url-button" onClick={props.handleOverlay}>show url</button>
+				<button id="url-button" onClick={props.handleOverlay}>show url</button>
 			</div>
 		</div>
 
@@ -28,13 +28,13 @@ const Results = props =>
 			mapElement={<div style={{ height: `100%` }} />} />
 		</div>
 
-		<div className="row">
-			<button name="locationSubmitted" onClick={props.handleLocationSubmit} style={props.state.waitingForResponse ? { background: "grey" } : { background: "#0060C0" }}>{props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
-			<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
+		<div className="row" id="locationInfo" style={props.state.locationSubmitted ? { display: "block" } : { display: "none" }}>
+			Location Information
 		</div>
 
 		<div className="row">
-			<button id="logout-button" onClick={props.handleLogout}>Logout</button>
+			<button name="locationSubmitted" onClick={props.handleLocationSubmit} style={props.state.waitingForResponse ? { background: "grey" } : { background: "#0060C0" }}>{props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
+			<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
 		</div>
 
 		<div id="overlay">

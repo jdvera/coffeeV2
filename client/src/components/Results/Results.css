@@ -25,9 +25,16 @@
 
 }
 
-#url-button {
+#url-button, #logout-button {
     width: 100%;
     max-width: 180px;
+}
+
+#locationInfo {
+    border-width: 3px;
+    border-style: solid;
+    border-color: #003366;
+    border-radius: 25px;
 }
 
 #logout-button {

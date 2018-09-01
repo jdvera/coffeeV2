@@ -1,3 +1,4 @@
+/*global google*/
 import React, { Component } from "react";
 import "./Main.css";
 import API from "../../utils/API";
@@ -27,7 +28,8 @@ class Main extends Component {
 		mapCenter: null,
 		waitingForResponse: false,
 		groupCenter: null,
-		locationSubmitted: false
+		locationSubmitted: false,
+		nearbyArr: []
 	};
 
 	handleInputChange = event => {
@@ -163,7 +165,29 @@ class Main extends Component {
 				this.setState({
 					waitingForResponse: false,
 					groupCenter: newObj
-				}, () => console.log("groupCenter updated"));
+				}, () => {
+					console.log("groupCenter updated");
+					
+					const request = {
+						location: this.state.groupCenter,
+						radius: 500,
+						type: ['cafe']
+					};
+					const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
+					service.nearbySearch(request, (results, status) => {
+						if (status === google.maps.places.PlacesServiceStatus.OK) {
+							// for (var i = 0; i < results.length; i++) {
+							// 	console.log(results[i].name + "'s location: " + results[i].geometry.location);
+							// }
+							// console.log(results);
+							// updatePlaces(results);
+							this.setState({nearbyArr: results}, () => console.log("Places Results updated"));
+						}
+						else {
+							console.log("FIREBASE - PlacesService Issue");
+						}
+					});
+				});
 			}
 		});
 	};
@@ -204,7 +228,7 @@ class Main extends Component {
 		}
 	};
 
-	handleLogout = event =>{
+	handleLogout = event => {
 		event.preventDefault();
 		API.logout().then((res) => {
 			console.log("Logout response:", res);
@@ -225,7 +249,8 @@ class Main extends Component {
 				mapCenter: null,
 				waitingForResponse: false,
 				groupCenter: null,
-				locationSubmitted: false
+				locationSubmitted: false,
+				nearbyArr: []
 			}, () => { console.log("Logout successful"); });
         }).catch(err => console.log(err));
 	}; 
