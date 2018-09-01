@@ -26,10 +26,12 @@ class Main extends Component {
 		copied: false,
 		currentLocation: null,
 		mapCenter: null,
+		zoom: 14,
 		waitingForResponse: false,
 		groupCenter: null,
 		locationSubmitted: false,
-		nearbyArr: []
+		nearbyArr: [],
+		placeKey: null
 	};
 
 	handleInputChange = event => {
@@ -107,9 +109,6 @@ class Main extends Component {
 			isJoining: this.state.isJoining
 		};
 
-		console.log("What I'm sending to server");
-		console.log(apiObj);
-
 		if(this.state.createNewUser) {
 			apiCall = API.signup;
 		}
@@ -125,7 +124,6 @@ class Main extends Component {
 				console.log(res.data);
 				this.handleOverlay()
 			})
-			// window.location.replace(res.data);
 		}).catch(err => {
 			console.log(err.response);
 			if (err.response.status === 422) {
@@ -147,7 +145,9 @@ class Main extends Component {
 
 //  ----- Results-specific functions
 	updateMapObject = value => {
-		this.setState({ map: value }, () => console.log("Map object updated"))
+		this.setState({ map: value }, () => {
+			this.loadFirebase();
+		});
 	};
 
 	handleClipboard = () => {
@@ -176,11 +176,14 @@ class Main extends Component {
 					const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
 					service.nearbySearch(request, (results, status) => {
 						if (status === google.maps.places.PlacesServiceStatus.OK) {
-							// for (var i = 0; i < results.length; i++) {
-							// 	console.log(results[i].name + "'s location: " + results[i].geometry.location);
-							// }
-							// console.log(results);
-							// updatePlaces(results);
+							console.log("Places results below");
+							for (var i = 0; i < results.length; i++) {
+								console.log(results[i].name + "'s location: " + results[i].geometry.location);
+							}
+							if (results[0]) {
+								console.log(results[0]);
+							}
+							
 							this.setState({nearbyArr: results}, () => console.log("Places Results updated"));
 						}
 						else {
@@ -191,6 +194,10 @@ class Main extends Component {
 			}
 		});
 	};
+
+	showPlaceInfo = key => {
+		this.setState({ key: key }, () => console.log("key:", key))
+	}
 
 	handleCenterChanged = latLng => {
 		let stateObj = { mapCenter: latLng };
@@ -203,11 +210,13 @@ class Main extends Component {
 	handleLocationSubmit = () => {
 		if(!this.state.waitingForResponse) {
 			let stateObj = {
-				locationSubmitted: !(this.state.locationSubmitted)
+				locationSubmitted: !(this.state.locationSubmitted),
+				zoom: 14
 			}
 
 			if(stateObj.locationSubmitted === true) {
 				stateObj.waitingForResponse = true;
+				stateObj.zoom = 16;
 			}
 
 			this.setState(stateObj, () => {
@@ -285,7 +294,7 @@ class Main extends Component {
 		return (
 			<div className="main-container">
 				{ !this.state.showResultsPage ? <Home state={this.state} handleOverlay={this.handleOverlay} getUserLocation={this.getUserLocation} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} handleNewUser={this.handleNewUser} />
-				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} updateMapObject={this.updateMapObject} handleCenterChanged={this.handleCenterChanged} loadFirebase={this.loadFirebase} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
+				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} showPlaceInfo={this.showPlaceInfo} updateMapObject={this.updateMapObject} handleCenterChanged={this.handleCenterChanged} loadFirebase={this.loadFirebase} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
 			</div>
 		);
 	};

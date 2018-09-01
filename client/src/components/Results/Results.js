@@ -23,13 +23,23 @@ const Results = props =>
 			handleCenterChanged={props.handleCenterChanged}
 			loadFirebase={props.loadFirebase}
 			updateMapObject={props.updateMapObject}
+			showPlaceInfo={props.showPlaceInfo}
 			loadingElement={<div style={{ height: `100%` }} />}
 			containerElement={<div style={{ height: `500px` }} />}
 			mapElement={<div style={{ height: `100%` }} />} />
 		</div>
 
 		<div className="row" id="locationInfo" style={props.state.locationSubmitted ? { display: "block" } : { display: "none" }}>
-			Location Information
+			Location Information <br />
+			{props.state.nearbyArr[props.state.key]
+			? (<div>
+					<span>Name: <strong>{props.state.nearbyArr[props.state.key].name}</strong></span> <br />
+					<span>Address: <strong>{props.state.nearbyArr[props.state.key].vicinity}</strong></span> <br />
+					<span>Open Now: <strong>{props.state.nearbyArr[props.state.key].opening_hours ? (props.state.nearbyArr[props.state.key].opening_hours.open_now ? "Yes!" : "No...") : "Unknown"}</strong></span> <br />
+					<span>Rating: <strong>{props.state.nearbyArr[props.state.key].rating}</strong></span> <br />
+			</div>)
+			: ""
+			}
 		</div>
 
 		<div className="row">

@@ -5,8 +5,6 @@ import { withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 
 class Map extends Component {
 
-    componentDidMount = () => this.props.loadFirebase();
-
     mapLoaded = map => {
         if (!this.props.state.map) {
             this.props.updateMapObject(map);
@@ -16,6 +14,10 @@ class Map extends Component {
     getCenter = () => {
         this.props.handleCenterChanged(this.props.state.map.getCenter());
     };
+
+    returnValue = key => {
+        this.props.showPlaceInfo(key);
+    }
 
     render() {
         const mapOptions = {
@@ -27,7 +29,8 @@ class Map extends Component {
         return (
             <GoogleMap
                 ref={this.mapLoaded.bind(this)}
-                defaultZoom={13}
+                defaultZoom={14}
+                zoom={this.props.state.zoom}
                 defaultCenter={this.props.state.currentLocation}
                 onCenterChanged={this.getCenter.bind(this)}
                 defaultOptions={mapOptions}
@@ -37,7 +40,10 @@ class Map extends Component {
                     <Marker position={this.props.state.groupCenter}
                         icon={{ url: window.location.origin + "/images/blue_pin.png", scaledSize: new google.maps.Size(28, 46) }}
                     />}
-                {console.log(this.props.state.nearbyArr)}
+                {(this.props.state.nearbyArr.length > 0) && 
+                    this.props.state.nearbyArr.map((place, index) => {
+                        return <Marker key={index} position={place.geometry.location} onClick={() => this.returnValue(index)} />
+                    })}
                 
                     
             </GoogleMap>
@@ -46,3 +52,6 @@ class Map extends Component {
 };
 
 export default withGoogleMap(Map);
+
+// place={{name: "test-marker"}}
+// onClick={this.returnValue.bind(this)}
