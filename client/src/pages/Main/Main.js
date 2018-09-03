@@ -25,13 +25,16 @@ class Main extends Component {
 		url: null,
 		copied: false,
 		currentLocation: null,
+		map: null,
+		mapMessage: null,
 		mapCenter: null,
 		zoom: 14,
 		waitingForResponse: false,
 		groupCenter: null,
 		locationSubmitted: false,
 		nearbyArr: [],
-		placeKey: null
+		placeKey: null,
+		placeInfo: []
 	};
 
 	handleInputChange = event => {
@@ -146,6 +149,7 @@ class Main extends Component {
 //  ----- Results-specific functions
 	updateMapObject = value => {
 		this.setState({ map: value }, () => {
+			console.log("Map obj updated - should only happen once");
 			this.loadFirebase();
 		});
 	};
@@ -158,7 +162,7 @@ class Main extends Component {
 		const groupRef = firebase.database().ref('group/' + this.state.groupNum);
 		groupRef.on('value', snapshot => {
 			if(snapshot.val()) {
-				const newObj = {
+				let newObj = {
 					lat: snapshot.val().latAvg,
 					lng: snapshot.val().lngAvg
 				};
@@ -166,10 +170,10 @@ class Main extends Component {
 					waitingForResponse: false,
 					groupCenter: newObj
 				}, () => {
-					console.log("groupCenter updated");
+					console.log("groupCenter updated          ");
 					
 					const request = {
-						location: this.state.groupCenter,
+						location: newObj,
 						radius: 500,
 						type: ['cafe']
 					};
@@ -177,17 +181,21 @@ class Main extends Component {
 					service.nearbySearch(request, (results, status) => {
 						if (status === google.maps.places.PlacesServiceStatus.OK) {
 							console.log("Places results below");
-							for (var i = 0; i < results.length; i++) {
-								console.log(results[i].name + "'s location: " + results[i].geometry.location);
-							}
-							if (results[0]) {
-								console.log(results[0]);
-							}
-							
-							this.setState({nearbyArr: results}, () => console.log("Places Results updated"));
+
+							// for (var i = 0; i < results.length; i++) {
+							// 	console.log(results[i].name + "'s location: " + results[i].geometry.location);
+							// }
+							// console.log(results[0]);
+
+							this.setState({
+								nearbyArr: results
+							}, () => console.log("Places Results updated"));
 						}
 						else {
-							console.log("FIREBASE - PlacesService Issue");
+							this.setState({
+								nearbyArr: [],
+								mapMessage: "No places found.  Please enter a new location or wait for others to join"
+							}, () => console.log("FIREBASE - PlacesService Issue"));
 						}
 					});
 				});
@@ -195,8 +203,15 @@ class Main extends Component {
 		});
 	};
 
-	showPlaceInfo = key => {
-		this.setState({ key: key }, () => console.log("key:", key))
+	showPlaceInfo = placeKey => {
+		const thisPlace = this.state.nearbyArr[placeKey];
+		let stateArr = [null, null, null, null];
+		stateArr[0] = "Name: " + thisPlace.name;
+		stateArr[1] = "Address: " + thisPlace.vicinity;
+		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
+		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
+
+		this.setState({ placeKey: placeKey, placeInfo: stateArr }, () => console.log("placeKey & placeInfo updated"));
 	}
 
 	handleCenterChanged = latLng => {
@@ -211,7 +226,9 @@ class Main extends Component {
 		if(!this.state.waitingForResponse) {
 			let stateObj = {
 				locationSubmitted: !(this.state.locationSubmitted),
-				zoom: 14
+				zoom: 14,
+				placeInfo: [],
+				nearbyArr: []
 			}
 
 			if(stateObj.locationSubmitted === true) {

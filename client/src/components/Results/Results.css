@@ -37,6 +37,10 @@
     border-radius: 25px;
 }
 
+#locationInfo:after {
+    content: none;
+}
+
 #logout-button {
     background: #ff0000 ;
 }

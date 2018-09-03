@@ -2,8 +2,10 @@
 var db = require("../models");
 var passport = require("../config/passport");
 var firebase = require("../config/firebase");
+var Sequelize = require('sequelize');
 
 module.exports = function (app) {
+	var Op = Sequelize.Op;
    // Using the passport.authenticate middleware with our local strategy.
    // If the user has valid login credentials, send them to the members page.
    // Otherwise the user will be sent an error
@@ -76,9 +78,12 @@ module.exports = function (app) {
          res.send(true);
 
          db.UserGroups.findAll({
-            where: { groupNum: req.body.groupNum }
+            where: { groupNum: req.body.groupNum,
+                     lat: { [Op.ne]: null }
+                    }
          }).then(function (dbUserGroupsFindAll) {
             console.log(' --- dbUserGroupsFindAll --- ');
+            console.log(JSON.stringify(dbUserGroupsFindAll, null, 3));
             var latArr = [];
             var lngArr = [];
 
