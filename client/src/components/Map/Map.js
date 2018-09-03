@@ -32,7 +32,7 @@ class Map extends Component {
                 defaultZoom={14}
                 zoom={this.props.state.zoom}
                 defaultCenter={this.props.state.currentLocation}
-                center={this.props.state.groupCenter || this.props.state.currentLocation}
+                center={this.props.state.locationSubmitted ? this.props.state.groupCenter : this.props.state.currentLocation}
                 onCenterChanged={this.getCenter.bind(this)}
                 defaultOptions={mapOptions}
             >
