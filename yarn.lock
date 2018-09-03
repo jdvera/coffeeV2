@@ -1971,6 +1971,10 @@ react-copy-to-clipboard@^5.0.1:
     copy-to-clipboard "^3"
     prop-types "^15.5.8"
 
+react-device-detect@^1.5.9:
+  version "1.5.9"
+  resolved "https://registry.yarnpkg.com/react-device-detect/-/react-device-detect-1.5.9.tgz#e2e6438d5a5b9e97134fa9da6829369742c997d9"
+
 react-google-maps@^9.4.5:
   version "9.4.5"
   resolved "https://registry.yarnpkg.com/react-google-maps/-/react-google-maps-9.4.5.tgz#920c199bdc925e0ce93880edffb09428d263aafa"

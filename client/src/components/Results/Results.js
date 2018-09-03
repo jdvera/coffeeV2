@@ -1,7 +1,10 @@
 import React from "react";
 import "./Results.css";
 import Map from "../Map";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { isMobile } from "react-device-detect";
+
+const mapHeight = isMobile ? `250px` : `500px`;
 
 const Results = props =>
 
@@ -25,7 +28,7 @@ const Results = props =>
 			updateMapObject={props.updateMapObject}
 			showPlaceInfo={props.showPlaceInfo}
 			loadingElement={<div style={{ height: `100%` }} />}
-			containerElement={<div style={{ height: `500px` }} />}
+			containerElement={<div style={{ height: mapHeight }} />}
 			mapElement={<div style={{ height: `100%` }} />} />
 			<p>{props.state.mapMessage}</p>
 		</div>

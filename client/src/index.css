@@ -99,32 +99,11 @@ form {
 .group:after { clear:both;}
 .group { zoom:1; /* For IE 6/7 */ }
 
-/*  GRID OF FIVE  */
-.span_5_of_5 {
-  width: 100%;
-}
-.span_4_of_5 {
-  width: 79.68%;
-}
-.span_3_of_5 {
-  width: 59.36%;
-}
-.span_2_of_5 {
-  width: 39.04%;
-}
-.span_1_of_5 {
-  width: 18.72%;
-}
-
 /*  GO FULL WIDTH BELOW 480 PIXELS */
 @media only screen and (max-width: 480px) {
-  .results-container {
-    
+  .home-container, .results-container, .error-container {
+    width: 92%;
   }
-  
-  .col {  margin: 1% 0 1% 0%; }
-  .span_1_of_5, .span_2_of_5, .span_3_of_5, .span_4_of_5, .span_5_of_5 { width: 100%; }
-
 }
 
 /* BUTTON STYLING */
@@ -134,7 +113,8 @@ button {
     text-decoration: none;
     color: white;
     height: 40px;
-    width: 260px;
+    max-width: 260px;
+    width: 95%;
     margin: 4px 2px;
     border-radius: 25px;
     padding: 5px 20px;
@@ -169,6 +149,7 @@ button:hover {
 
 #imgStyle {
   text-align: center;
+  width: 70%;
   max-width: 290px; 
 }
 

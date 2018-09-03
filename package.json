@@ -35,6 +35,7 @@
     "path": "^0.12.7",
     "react": "^16.4.0",
     "react-copy-to-clipboard": "^5.0.1",
+    "react-device-detect": "^1.5.9",
     "react-google-maps": "^9.4.5",
     "react-media": "^1.8.0",
     "sequelize": "^4.37.10"

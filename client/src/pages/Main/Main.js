@@ -277,7 +277,7 @@ class Main extends Component {
 				groupCenter: null,
 				locationSubmitted: false,
 				nearbyArr: []
-			}, () => { console.log("Logout successful"); });
+			}, () => { console.log("Logout successful    "); });
         }).catch(err => console.log(err));
 	}; 
 
