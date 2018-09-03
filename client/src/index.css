@@ -102,7 +102,7 @@ form {
 /*  GO FULL WIDTH BELOW 480 PIXELS */
 @media only screen and (max-width: 480px) {
   .home-container, .results-container, .error-container {
-    width: 92%;
+    width: 90%;
   }
 }
 
@@ -149,7 +149,7 @@ button:hover {
 
 #imgStyle {
   text-align: center;
-  width: 70%;
+  width: 65%;
   max-width: 290px; 
 }
 

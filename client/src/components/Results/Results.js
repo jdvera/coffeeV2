@@ -4,7 +4,7 @@ import Map from "../Map";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { isMobile } from "react-device-detect";
 
-const mapHeight = isMobile ? `250px` : `500px`;
+const mapHeight = isMobile ? `200px` : `500px`;
 
 const Results = props =>
 
