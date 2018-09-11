@@ -60,7 +60,7 @@ class Main extends Component {
 		event.preventDefault();
 		const newUserOldValue = this.state.createNewUser;
 		let value = (event.target.value === "true");
-		console.log('new createNewUser value', value);
+		console.log('new createNewUser value: ', value);
 
 		this.setState({ createNewUser: value }, () => {
 			console.log("createNewUser: " + value);
