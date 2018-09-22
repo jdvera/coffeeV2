@@ -75,7 +75,7 @@ module.exports = function (app) {
       }, {
          where: { id: req.body.userGroupId }
       }).then(function () {
-         res.send(true);
+         res.json({ success: true });
 
          db.UserGroups.findAll({
             where: { groupNum: req.body.groupNum,
@@ -114,8 +114,8 @@ module.exports = function (app) {
             db.Groups.update(updateObj, {
                where: { groupNum: req.body.groupNum }
             }).then(function() {
-               var groupsRef = firebase.database().ref('group/' + req.body.groupNum);
-               groupsRef.set(updateObj);
+                console.log(" ----- Updating Firebase ----- ")
+                firebase.database().ref('group/' + req.body.groupNum).set(updateObj);
             }).catch(function (groupsUpdateErr) {
                console.log(" -------- db.Groups Update error -------- ");
                console.log(groupsUpdateErr);
@@ -129,6 +129,7 @@ module.exports = function (app) {
       }).catch(function (UpdateErr) {
          console.log(" -------- db.UserGroups Update error -------- ");
          console.log(UpdateErr);
+         res.json(UpdateErr);
       });
    });
 

@@ -42,7 +42,7 @@ class Main extends Component {
 		this.setState({
 			[name]: value,
 			message: ""
-		}, () => console.log(name + ": " + value));
+		});
 	};
 
 	handleOverlay = () => {
@@ -59,22 +59,18 @@ class Main extends Component {
 	handleNewUser = event => {
 		event.preventDefault();
 		const newUserOldValue = this.state.createNewUser;
-		let value = (event.target.value === "true");
-		console.log('new createNewUser value: ', value);
+		const value = (event.target.value === "true");
 
-		this.setState({ createNewUser: value }, () => {
-			console.log("createNewUser: " + value);
-			
-			if(newUserOldValue !== this.state.createNewUser) {
-				this.setState({
-					username: "",
-					password: "",
-					retype: ""
-				}, this.handleOverlay);
-			}
-			else {
-				this.handleOverlay();
-			}
+		const stateObj = { createNewUser: value };
+
+		if(newUserOldValue !== value) {
+			stateObj.username = "";
+			stateObj.password = "";
+			stateObj.retype = "";
+		}
+
+		this.setState(stateObj, () => {
+			this.handleOverlay();
 		});
 	};
 
@@ -82,11 +78,10 @@ class Main extends Component {
 		event.preventDefault();
 
 		let stateObj = {};
-		let callback = this.createGroup;
+		let callback = null;
 
 		if(!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
 			stateObj = { message: "Please fill in all fields"};
-			callback = () => console.log("Some fields left blank");
 		}
 		else if (this.state.createNewUser && this.state.password !== this.state.retype) {
 			stateObj = {
@@ -94,10 +89,10 @@ class Main extends Component {
 				password: "",
 				retype: ""
 			};
-			callback = () => console.log("Passwords didn't match");
 		}
 		else {
 			stateObj = { message: "" };
+			callback = this.createGroup;
 		}
 		
 		this.setState(stateObj, callback);
@@ -122,26 +117,25 @@ class Main extends Component {
 		apiCall(apiObj).then(res => {
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
-			this.setState(res.data, () => {
-				console.log("Updated state with following data:");
-				console.log(res.data);
-				this.handleOverlay()
-			})
+			this.setState(res.data, () => this.handleOverlay());
 		}).catch(err => {
-			console.log(err.response);
+			let stateObj;
+
 			if (err.response.status === 422) {
-				this.setState({
+				stateObj = {
 					message: "That Screen Name is already taken :(",
 					username: ""
-				}, () => console.log(err.response.data));
+				};
 			}
 			else if (err.response.status === 401) {
-				this.setState({
+				stateObj = {
 					message: "Screen Name or Password incorrect",
 					username: "",
 					password: ""
-				}, () => console.log(err.response.data));
+				};
 			}
+
+			this.setState(stateObj, () => console.log(err.response.data));
 		});
 	};
 
@@ -149,7 +143,6 @@ class Main extends Component {
 //  ----- Results-specific functions
 	updateMapObject = value => {
 		this.setState({ map: value }, () => {
-			console.log("Map obj updated - should only happen once");
 			this.loadFirebase();
 		});
 	};
@@ -159,45 +152,35 @@ class Main extends Component {
 	};
 
 	loadFirebase = () => {
-		const groupRef = firebase.database().ref('group/' + this.state.groupNum);
-		groupRef.on('value', snapshot => {
+		firebase.database().ref('group/' + this.state.groupNum).on('value', snapshot => {
 			if(snapshot.val()) {
-				let newObj = {
+				const latLng = {
 					lat: snapshot.val().latAvg,
 					lng: snapshot.val().lngAvg
 				};
-				this.setState({
+				const stateObj = {
 					waitingForResponse: false,
-					groupCenter: newObj
-				}, () => {
-					console.log("groupCenter updated          ");
-					
-					const request = {
-						location: newObj,
-						radius: 500,
-						type: ['cafe']
-					};
-					const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
-					service.nearbySearch(request, (results, status) => {
-						if (status === google.maps.places.PlacesServiceStatus.OK) {
-							console.log("Places results below");
+					groupCenter: latLng,
+					zoom: 16
+				};
+				const request = {
+					location: latLng,
+					radius: 500,
+					type: ['cafe']
+				};
 
-							// for (var i = 0; i < results.length; i++) {
-							// 	console.log(results[i].name + "'s location: " + results[i].geometry.location);
-							// }
-							// console.log(results[0]);
+				const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
+				service.nearbySearch(request, (results, status) => {
+					if (status === google.maps.places.PlacesServiceStatus.OK) {
+						stateObj.nearbyArr = results;
+						stateObj.mapMessage = "";
+					}
+					else {
+						stateObj.nearbyArr = [];
+						stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
+					}
 
-							this.setState({
-								nearbyArr: results
-							}, () => console.log("Places Results updated"));
-						}
-						else {
-							this.setState({
-								nearbyArr: [],
-								mapMessage: "No places found.  Please enter a new location or wait for others to join"
-							}, () => console.log("FIREBASE - PlacesService Issue"));
-						}
-					});
+					this.setState(stateObj, () => console.log("Information received from Firebase & Places"));
 				});
 			}
 		});
@@ -223,36 +206,71 @@ class Main extends Component {
 	}
 
 	handleLocationSubmit = () => {
+		//  Prevents user from trying to submit a new location before receiving a response from a previous submission 
 		if(!this.state.waitingForResponse) {
-			let stateObj = {
-				locationSubmitted: !(this.state.locationSubmitted),
-				zoom: 14,
-				placeInfo: [],
-				nearbyArr: []
+
+			if(this.state.locationSubmitted) {
+				this.prepNewLocation();
 			}
-
-			if(stateObj.locationSubmitted === true) {
-				stateObj.waitingForResponse = true;
-				stateObj.zoom = 16;
+			else {
+				this.submitLocation();
 			}
-
-			this.setState(stateObj, () => {
-				console.log("locationSubmitted: " + stateObj.locationSubmitted);
-
-				if(stateObj.locationSubmitted === true){
-					const apiObj = {
-						currentLocation: this.state.currentLocation,
-						userGroupId: this.state.userGroupId,
-						groupNum: this.state.groupNum
-					};
-
-					API.updateLocation(apiObj).then(() => {
-							this.setState({ message: "Location submitted successfully" }, () => setTimeout(() => this.setState({ message: "" }), 2500));
-					}).catch(err => console.log(err));
-				}
-			});
 		}
-	};
+	} 
+
+	prepNewLocation = () => {
+		const stateObj = {
+			locationSubmitted: false,
+			zoom: 14,
+			placeInfo: [],
+			nearbyArr: [],
+			message: "Submit a new location"
+		}
+
+		this.setState(stateObj, () => console.log("Allowing user to submit new location"));
+	}
+
+	submitLocation = () => {
+		const stateObj = {
+			locationSubmitted: true,
+			zoom: 14,
+			placeInfo: [],
+			nearbyArr: [],
+			waitingForResponse: true,
+			groupCenter: this.state.currentLocation
+		}
+
+		this.setState(stateObj, () => {
+			const apiObj = {
+				currentLocation: this.state.currentLocation,
+				userGroupId: this.state.userGroupId,
+				groupNum: this.state.groupNum
+			};
+
+			API.updateLocation(apiObj).then(res => {
+				console.log(res.data);
+				let message;
+
+				if(res.data.success) {
+					message = {
+						message: "Location submitted successfully"
+					};
+				}
+				else {
+					message = { message: "Something went wrong" };
+				}
+				
+				this.setState(message, () => {
+					setTimeout(() => this.setState({ message: "" }), 2500);
+					setTimeout(() => {
+						if(this.state.waitingForResponse) {
+							this.setState({ mapMessage: "Google's slow sometimes, just give it a sec :)" }, () => setTimeout(() => this.setState({ mapMessage: "" }), 2500));
+						}
+					}, 2000);
+				});
+			}).catch(err => console.log("err: ", err));
+		});
+	}
 
 	handleLogout = event => {
 		event.preventDefault();
@@ -272,13 +290,18 @@ class Main extends Component {
 				url: null,
 				copied: false,
 				currentLocation: null,
+				map: null,
+				mapMessage: null,
 				mapCenter: null,
+				zoom: 14,
 				waitingForResponse: false,
 				groupCenter: null,
 				locationSubmitted: false,
-				nearbyArr: []
-			}, () => { console.log("Logout successful    "); });
-        }).catch(err => console.log(err));
+				nearbyArr: [],
+				placeKey: null,
+				placeInfo: []
+			}, () => { console.log("Logout successful"); });
+        }).catch(err => console.log("err: ", err));
 	}; 
 
 	
