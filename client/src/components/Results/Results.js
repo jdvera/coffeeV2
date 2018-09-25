@@ -22,14 +22,16 @@ const Results = props =>
 		</div>
 
 		<div className="row my-map">
-			<Map state={props.state}
-			handleCenterChanged={props.handleCenterChanged}
-			loadFirebase={props.loadFirebase}
-			updateMapObject={props.updateMapObject}
-			showPlaceInfo={props.showPlaceInfo}
-			loadingElement={<div style={{ height: `100%` }} />}
-			containerElement={<div style={{ height: mapHeight }} />}
-			mapElement={<div style={{ height: `100%` }} />} />
+			<Map
+				state={props.state}
+				handleCenterChanged={props.handleCenterChanged}
+				loadFirebase={props.loadFirebase}
+				updateMapObject={props.updateMapObject}
+				showPlaceInfo={props.showPlaceInfo}
+				loadingElement={<div style={{ height: `100%` }} />}
+				containerElement={<div style={{ height: mapHeight }} />}
+				mapElement={<div style={{ height: `100%` }} />}
+			/>
 			<p>{props.state.mapMessage}</p>
 		</div>
 
@@ -50,10 +52,12 @@ const Results = props =>
 				)
 			}</div>}
 
-		{props.state.locationSubmitted && <div className="row" id="info-container">
-			Location Information <br />
-			{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 4 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
-			{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
+		{props.state.locationSubmitted && <div className="row">
+			<div id="info-container">
+				Location Information <br />
+				{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 4 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
+				{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
+			</div>
 		</div>}
 
 		<div className="row">

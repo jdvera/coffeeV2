@@ -31,7 +31,7 @@
 }
 
 #info-container, #votes-container {
-    display: inline;
+    display: block;
     margin-left: auto;
     margin-right: auto;
     width: 400px;

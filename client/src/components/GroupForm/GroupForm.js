@@ -3,7 +3,8 @@ import "./GroupForm.css";
 
 const GroupForm = props =>
 
-	<form>
+	<form id="overlay">
+		<br/>
 		<div className="form-group">
 			<div className="form-header">Your Screen Name</div>
 			<input type="text" className="form-control" placeholder="Screen Name" name="username" value={props.state.username} onChange={props.handleInputChange} />
@@ -15,6 +16,7 @@ const GroupForm = props =>
 		</div>
 		<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
 		<button onClick={props.handleGroupSubmit}>Submit</button>
+		<br/>
 	</form>
 
 export default GroupForm;

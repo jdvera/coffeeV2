@@ -36,12 +36,8 @@ class Home extends Component {
 
 				<p id="genText2">{this.props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
 
-				<div id="overlay">
-					<br />
-					<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} />
-					<br />
-				</div>
-
+				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} />
+				
 				<div id="overlay-background" onClick={this.props.handleOverlay}></div>
 			</div>
 		);
