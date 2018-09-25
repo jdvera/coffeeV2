@@ -45,7 +45,7 @@ const Results = props =>
 						}
 					});
 					return e;
-				}).filter(e => e.name).map((e, i) => 
+				}).filter(e => e.name && e.val).sort((a, b) => b.val - a.val).map((e, i) => 
 					<div key={i}>
 						{`${e.letter}. ${e.name}: ${e.val}`}
 					</div>

@@ -178,6 +178,7 @@ class Main extends Component {
 					votesAllArr: [],
 					placeInfo: [],
 					nearbyArr: [],
+					placeKey: null
 				};
 				const request = {
 					location: latLng,

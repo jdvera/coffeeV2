@@ -39,6 +39,7 @@
 }
 
 #info-container {
+    min-height: 150px;
     border-width: 3px;
     border-style: solid;
     border-color: #003366;
