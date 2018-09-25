@@ -115,7 +115,7 @@ module.exports = function (app) {
                where: { groupNum: req.body.groupNum }
             }).then(function() {
                 console.log(" ----- Updating Firebase ----- ")
-                firebase.database().ref('group/' + req.body.groupNum).set(updateObj);
+                firebase.database().ref('group/' + req.body.groupNum + '/center').set(updateObj);
             }).catch(function (groupsUpdateErr) {
                console.log(" -------- db.Groups Update error -------- ");
                console.log(groupsUpdateErr);

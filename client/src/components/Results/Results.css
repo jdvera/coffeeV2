@@ -30,14 +30,22 @@
     max-width: 180px;
 }
 
-#locationInfo {
+#info-container, #votes-container {
+    display: inline;
+    margin-left: auto;
+    margin-right: auto;
+    width: 400px;
+    padding-top: 15px;
+}
+
+#info-container {
     border-width: 3px;
     border-style: solid;
     border-color: #003366;
     border-radius: 25px;
 }
 
-#locationInfo:after {
+#info-container:after {
     content: none;
 }
 
@@ -55,5 +63,10 @@
     #url-button, #logout-button {
         font-size: 13px;
         padding: 5px 0px;
+    }
+    
+    #info-container {
+        width: 100%;
+        padding-top: 0px;
     }
 }

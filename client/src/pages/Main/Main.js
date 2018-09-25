@@ -6,12 +6,17 @@ import firebase from "../../utils/firebase";
 import Home from "../../components/Home";
 import Results from "../../components/Results";
 
+/* 
+	---------  THINGS TO DO ---------
+	 - in prepLocationChange, add a cancel button
+	 - make sure voting letter/name appears correctly on every screen
+	 - don't show results to people who have never submitted a location (but keep the data in the state)
+*/
+
 class Main extends Component {
-
-
 //  ----- State and General Functions
-	
 	state = {
+		// - Home page
 		username: "",
 		password: "",
 		retype: "",
@@ -22,6 +27,8 @@ class Main extends Component {
 		showResultsPage: false,
 		userGroupId: null,
 		isCreator: null,
+
+		// - Results page
 		url: null,
 		copied: false,
 		currentLocation: null,
@@ -32,9 +39,14 @@ class Main extends Component {
 		waitingForResponse: false,
 		groupCenter: null,
 		locationSubmitted: false,
+		neverSubmitted: true,
+		showCancel: false,
 		nearbyArr: [],
 		placeKey: null,
-		placeInfo: []
+		placeInfo: [],
+		votedFor: null,
+		votesAll: {},
+		votesAllArr: []
 	};
 
 	handleInputChange = event => {
@@ -55,7 +67,6 @@ class Main extends Component {
 
 
 //  ----- Home-specific fucntions
-
 	handleNewUser = event => {
 		event.preventDefault();
 		const newUserOldValue = this.state.createNewUser;
@@ -113,8 +124,11 @@ class Main extends Component {
 		else {
 			apiCall = API.login;
 		}
+		
+		console.log("Main - CreateGroup - check if map doesn't show");
 
 		apiCall(apiObj).then(res => {
+			console.log("Main - CreateGroup API callback - check if map doesn't show");
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
 			this.setState(res.data, () => this.handleOverlay());
@@ -140,6 +154,7 @@ class Main extends Component {
 	};
 
 
+
 //  ----- Results-specific functions
 	updateMapObject = value => {
 		this.setState({ map: value }, () => {
@@ -152,8 +167,10 @@ class Main extends Component {
 	};
 
 	loadFirebase = () => {
-		firebase.database().ref('group/' + this.state.groupNum).on('value', snapshot => {
+		//  -- Center listener
+		firebase.database().ref('group/' + this.state.groupNum + '/center').on('value', snapshot => {
 			if(snapshot.val()) {
+				console.log(" ---- Firebase gave val");
 				const latLng = {
 					lat: snapshot.val().latAvg,
 					lng: snapshot.val().lngAvg
@@ -161,7 +178,11 @@ class Main extends Component {
 				const stateObj = {
 					waitingForResponse: false,
 					groupCenter: latLng,
-					zoom: 16
+					votedFor: null,
+					votesAll: {},
+					votesAllArr: [],
+					placeInfo: [],
+					nearbyArr: [],
 				};
 				const request = {
 					location: latLng,
@@ -169,24 +190,59 @@ class Main extends Component {
 					type: ['cafe']
 				};
 
-				const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
-				service.nearbySearch(request, (results, status) => {
-					if (status === google.maps.places.PlacesServiceStatus.OK) {
-						stateObj.nearbyArr = results;
-						stateObj.mapMessage = "";
-					}
-					else {
-						stateObj.nearbyArr = [];
-						stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
-					}
+				if(this.state.locationSubmitted === true) {
+					stateObj.zoom = 16;
+					
+					const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
+					service.nearbySearch(request, (results, status) => {
+						if (status === google.maps.places.PlacesServiceStatus.OK) {
+							const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+							let labelIndex = 0;
 
-					this.setState(stateObj, () => console.log("Information received from Firebase & Places"));
-				});
+							const letteredResults = results.map(place => {
+								place.letter = labels[labelIndex];
+								labelIndex = (labelIndex >= labels.length - 1) ? 0 : labelIndex + 1;
+								return place;
+							});
+
+							stateObj.nearbyArr = letteredResults;
+							stateObj.mapMessage = "";
+						}
+						else {
+							stateObj.nearbyArr = [];
+							stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
+						}
+
+						this.setState(stateObj, () => console.log("Firebase/Places - Location submitted"));
+					});
+				}
+				else {
+					this.setState(stateObj, () => console.log("Firebase/Places - Not Submitted yet"));
+				}
+			}
+		});
+
+		//  -- Votes listener
+		firebase.database().ref('group/' + this.state.groupNum + '/votes').on('value', snapshot => {
+			if(snapshot.val()) {
+				const votesAllArr = [];
+				for (const place in snapshot.val()) {
+					const newObj = {
+						placeId: place,
+						val: snapshot.val()[place]
+					};
+					votesAllArr.push(newObj);
+				}
+
+				this.setState({
+					votesAll: snapshot.val(),
+					votesAllArr: votesAllArr
+				}, () => console.log("Updated votesAllArr"));
 			}
 		});
 	};
 
-	showPlaceInfo = placeKey => {
+	showPlaceInfo = (placeKey) => {
 		const thisPlace = this.state.nearbyArr[placeKey];
 		let stateArr = [null, null, null, null];
 		stateArr[0] = "Name: " + thisPlace.name;
@@ -194,7 +250,36 @@ class Main extends Component {
 		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
 		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
 
+		
+		// const directionsUrl = "https://www.google.com/maps/dir/?api=1";
+		// var origin = "&origin=" + spacesToPlus(userAddress);
+		// var destination = "&destination=" + spacesToPlus(place.vicinity);
+		// var newUrl = url + origin + destination;
+
 		this.setState({ placeKey: placeKey, placeInfo: stateArr }, () => console.log("placeKey & placeInfo updated"));
+	}
+
+	handleVote = event => {
+		event.preventDefault();
+		const prevVote = this.state.votedFor;
+		const thisVote = this.state.nearbyArr[this.state.placeKey].id;
+		if (prevVote !== thisVote) {
+			const votesAll = this.state.votesAll;
+			if (prevVote !== null) {
+				votesAll[prevVote] = votesAll[prevVote] - 1;
+			}
+			votesAll[thisVote] = votesAll[thisVote] ? votesAll[thisVote] + 1 : 1;
+			
+			const stateObj = {
+				votedFor: thisVote,
+				votesAll: votesAll
+			};
+
+			this.setState(stateObj, () => {
+				firebase.database().ref('group/' + this.state.groupNum + '/votes').set(votesAll);
+			})
+
+		}
 	}
 
 	handleCenterChanged = latLng => {
@@ -206,9 +291,7 @@ class Main extends Component {
 	}
 
 	handleLocationSubmit = () => {
-		//  Prevents user from trying to submit a new location before receiving a response from a previous submission 
 		if(!this.state.waitingForResponse) {
-
 			if(this.state.locationSubmitted) {
 				this.prepNewLocation();
 			}
@@ -218,13 +301,26 @@ class Main extends Component {
 		}
 	} 
 
+	handleCancelLocation = event => {
+		event.preventDefault();
+		// console.log("click");
+		const stateObj = {
+			locationSubmitted: true,
+			showCancel: false,
+			message: "",
+			zoom: 16
+		}
+
+		this.setState(stateObj);
+	}
+
 	prepNewLocation = () => {
 		const stateObj = {
 			locationSubmitted: false,
-			zoom: 14,
-			placeInfo: [],
-			nearbyArr: [],
-			message: "Submit a new location"
+			showCancel: true,
+			message: "Submit a new location",
+			placeKey: null,
+			zoom: 14
 		}
 
 		this.setState(stateObj, () => console.log("Allowing user to submit new location"));
@@ -233,11 +329,10 @@ class Main extends Component {
 	submitLocation = () => {
 		const stateObj = {
 			locationSubmitted: true,
-			zoom: 14,
-			placeInfo: [],
-			nearbyArr: [],
+			showCancel: false,
 			waitingForResponse: true,
-			groupCenter: this.state.currentLocation
+			groupCenter: this.state.currentLocation,
+			neverSubmitted: false
 		}
 
 		this.setState(stateObj, () => {
@@ -264,9 +359,9 @@ class Main extends Component {
 					setTimeout(() => this.setState({ message: "" }), 2500);
 					setTimeout(() => {
 						if(this.state.waitingForResponse) {
-							this.setState({ mapMessage: "Google's slow sometimes, just give it a sec :)" }, () => setTimeout(() => this.setState({ mapMessage: "" }), 2500));
+							this.setState({ mapMessage: "Google's slow sometimes, just give it a sec :)" }, () => setTimeout(() => this.setState({ mapMessage: "" }), 5000));
 						}
-					}, 2000);
+					}, 1750);
 				});
 			}).catch(err => console.log("err: ", err));
 		});
@@ -297,9 +392,14 @@ class Main extends Component {
 				waitingForResponse: false,
 				groupCenter: null,
 				locationSubmitted: false,
+				neverSubmitted: true,
+				showCancel: false,
 				nearbyArr: [],
 				placeKey: null,
-				placeInfo: []
+				placeInfo: [],
+				votedFor: null,
+				votesAll: {},
+				votesAllArr: []
 			}, () => { console.log("Logout successful"); });
         }).catch(err => console.log("err: ", err));
 	}; 
@@ -307,12 +407,11 @@ class Main extends Component {
 	
 
 	//  Current Location stuff
-	
 	success = pos => {
 		this.setState({
 			currentLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude },
 			mapCenter: { lat: pos.coords.latitude, lng: pos.coords.longitude }
-		}, () => console.log("location found"));
+		});
 	};
 	  
 	error = err => console.warn(`ERROR(${err.code}): ${err.message}`);
@@ -331,13 +430,38 @@ class Main extends Component {
 
 
 	render() {
+		const homeProps = {
+			state: this.state,
+			getUserLocation: this.getUserLocation,
+			handleGroupSubmit: this.handleGroupSubmit,
+			handleInputChange: this.handleInputChange,
+			handleNewUser: this.handleNewUser,
+			handleOverlay: this.handleOverlay
+		};
+		const resultsProps = {
+			state: this.state,
+			handleInputChange: this.handleInputChange,
+			handleClipboard: this.handleClipboard,
+			showPlaceInfo: this.showPlaceInfo,
+			updateMapObject: this.updateMapObject,
+			handleCenterChanged: this.handleCenterChanged,
+			loadFirebase: this.loadFirebase,
+			handleLocationSubmit: this.handleLocationSubmit,
+			handleCancelLocation: this.handleCancelLocation,
+			handleVote: this.handleVote,
+			handleOverlay: this.handleOverlay,
+			handleLogout: this.handleLogout
+		}
+		
 		return (
 			<div className="main-container">
-				{ !this.state.showResultsPage ? <Home state={this.state} handleOverlay={this.handleOverlay} getUserLocation={this.getUserLocation} handleGroupSubmit={this.handleGroupSubmit} handleInputChange={this.handleInputChange} handleNewUser={this.handleNewUser} />
-				: <Results state={this.state} handleInputChange={this.handleInputChange} handleClipboard={this.handleClipboard} showPlaceInfo={this.showPlaceInfo} updateMapObject={this.updateMapObject} handleCenterChanged={this.handleCenterChanged} loadFirebase={this.loadFirebase} handleLocationSubmit={this.handleLocationSubmit} handleOverlay={this.handleOverlay} handleLogout={this.handleLogout} /> }
+				{ this.state.showResultsPage ? <Results {...resultsProps} /> : <Home {...homeProps} /> }
 			</div>
 		);
 	};
 }
 
 export default Main;
+
+
+

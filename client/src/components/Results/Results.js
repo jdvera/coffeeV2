@@ -33,13 +33,34 @@ const Results = props =>
 			<p>{props.state.mapMessage}</p>
 		</div>
 
-		<div className="row" id="locationInfo" style={props.state.locationSubmitted ? { display: "block" } : { display: "none" }}>
+		{(props.state.votesAllArr.length > 0 && props.state.locationSubmitted) &&
+			<div id="votes-container">{
+				props.state.votesAllArr.map(e => {
+					console.log("Updating votes Display");
+					props.state.nearbyArr.forEach(element => {
+						if(e.placeId === element.id) {
+							console.log("Found a voted on thing");
+							e.name = element.name;
+							e.letter = element.letter;
+						}
+					});
+					return e;
+				}).filter(e => e.name).map((e, i) => 
+					<div key={i}>
+						{`${e.letter}. ${e.name}: ${e.val}`}
+					</div>
+				)
+			}</div>}
+
+		{props.state.locationSubmitted && <div className="row" id="info-container">
 			Location Information <br />
 			{props.state.placeInfo.map((info, key) => <span key={key}>{info}<br/></span>)}
-		</div>
+			{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
+		</div>}
 
 		<div className="row">
 			<button name="locationSubmitted" onClick={props.handleLocationSubmit} style={props.state.waitingForResponse ? { background: "grey" } : { background: "#0060C0" }}>{props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
+			{ props.state.showCancel ? <button name="cancelBtn" onClick={props.handleCancelLocation}>Cancel</button> : "" }
 			<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
 		</div>
 

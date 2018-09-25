@@ -16,7 +16,7 @@ class Home extends Component {
 				</div>
 
 				<div className="row">
-						<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="imgStyle" />
+						<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="img-style" />
 				</div>
 
 				<div className="row">
