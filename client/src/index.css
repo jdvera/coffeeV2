@@ -11,7 +11,7 @@ body {
   display: grid;
   margin: auto;
   padding: 20px;
-  min-height: 200px;
+  min-height: 600px;
   width: 95%;
   max-width: 500px;
   border-width: 3px;
@@ -111,19 +111,19 @@ button:hover {
 
 .chatbutton {
   background-color: #0060C0;
-    border: none;
-    color: white;
-    height: 30px;
-    width: 75px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 25px;
-    padding: 5px 10px;
-    font-family: 'Roboto', sans-serif;
+  border: none;
+  color: white;
+  height: 30px;
+  width: 75px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 25px;
+  padding: 5px 10px;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* STYLING FOR LOGO */

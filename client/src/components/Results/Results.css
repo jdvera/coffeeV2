@@ -65,7 +65,7 @@
         padding: 5px 0px;
     }
     
-    #info-container {
+    #info-container, #votes-container {
         width: 100%;
         padding-top: 0px;
     }
