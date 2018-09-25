@@ -36,9 +36,10 @@ class Map extends Component {
                 onCenterChanged={this.getCenter.bind(this)}
                 defaultOptions={mapOptions}
             >
-                <Marker position={this.props.state.currentLocation} />
+                <Marker position={this.props.state.potentialLocation} />
                 {(this.props.state.groupCenter && !this.props.state.waitingForResponse) &&
-                    <Marker position={this.props.state.groupCenter}
+                    <Marker
+                        position={this.props.state.groupCenter}
                         icon={{ url: window.location.origin + "/images/blue_pin.png", scaledSize: new google.maps.Size(28, 46) }}
                     />
                 }

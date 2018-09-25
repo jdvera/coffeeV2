@@ -32,6 +32,7 @@ class Main extends Component {
 		url: null,
 		copied: false,
 		currentLocation: null,
+		potentialLocation: null,
 		map: null,
 		mapMessage: null,
 		mapCenter: null,
@@ -237,24 +238,26 @@ class Main extends Component {
 				this.setState({
 					votesAll: snapshot.val(),
 					votesAllArr: votesAllArr
-				}, () => console.log("Updated votesAllArr"));
+				});
 			}
 		});
 	};
 
 	showPlaceInfo = (placeKey) => {
 		const thisPlace = this.state.nearbyArr[placeKey];
-		let stateArr = [null, null, null, null];
+
+		const personLoc = this.state.currentLocation;
+		const url = "https://www.google.com/maps/dir/?api=1";
+		const origin = "&origin=" + personLoc.lat + "," + personLoc.lng;
+		const destination = "&destination=" + thisPlace.vicinity;
+		const newUrl = url + origin + destination;
+
+		let stateArr = [null, null, null, null, null];
 		stateArr[0] = "Name: " + thisPlace.name;
 		stateArr[1] = "Address: " + thisPlace.vicinity;
 		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
 		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
-
-		
-		// const directionsUrl = "https://www.google.com/maps/dir/?api=1";
-		// var origin = "&origin=" + spacesToPlus(userAddress);
-		// var destination = "&destination=" + spacesToPlus(place.vicinity);
-		// var newUrl = url + origin + destination;
+		stateArr[4] = newUrl;
 
 		this.setState({ placeKey: placeKey, placeInfo: stateArr }, () => console.log("placeKey & placeInfo updated"));
 	}
@@ -285,7 +288,7 @@ class Main extends Component {
 	handleCenterChanged = latLng => {
 		let stateObj = { mapCenter: latLng };
 		if (!this.state.locationSubmitted){
-			stateObj.currentLocation = latLng;
+			stateObj.potentialLocation = latLng;
 		}
 		this.setState(stateObj);
 	}
@@ -299,19 +302,6 @@ class Main extends Component {
 				this.submitLocation();
 			}
 		}
-	} 
-
-	handleCancelLocation = event => {
-		event.preventDefault();
-		// console.log("click");
-		const stateObj = {
-			locationSubmitted: true,
-			showCancel: false,
-			message: "",
-			zoom: 16
-		}
-
-		this.setState(stateObj);
 	}
 
 	prepNewLocation = () => {
@@ -321,7 +311,7 @@ class Main extends Component {
 			message: "Submit a new location",
 			placeKey: null,
 			zoom: 14
-		}
+		};
 
 		this.setState(stateObj, () => console.log("Allowing user to submit new location"));
 	}
@@ -331,9 +321,9 @@ class Main extends Component {
 			locationSubmitted: true,
 			showCancel: false,
 			waitingForResponse: true,
-			groupCenter: this.state.currentLocation,
-			neverSubmitted: false
-		}
+			neverSubmitted: false,
+			currentLocation: this.state.potentialLocation
+		};
 
 		this.setState(stateObj, () => {
 			const apiObj = {
@@ -367,6 +357,17 @@ class Main extends Component {
 		});
 	}
 
+	handleCancelLocation = event => {
+		event.preventDefault();
+		this.setState({
+			locationSubmitted: true,
+			showCancel: false,
+			potentialLocation: this.state.currentLocation,
+			message: "",
+			zoom: 16
+		});
+	}
+
 	handleLogout = event => {
 		event.preventDefault();
 		API.logout().then((res) => {
@@ -385,6 +386,7 @@ class Main extends Component {
 				url: null,
 				copied: false,
 				currentLocation: null,
+				potentialLocation: null,
 				map: null,
 				mapMessage: null,
 				mapCenter: null,
@@ -408,9 +410,11 @@ class Main extends Component {
 
 	//  Current Location stuff
 	success = pos => {
+		const locObj = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 		this.setState({
-			currentLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude },
-			mapCenter: { lat: pos.coords.latitude, lng: pos.coords.longitude }
+			currentLocation: locObj,
+			potentialLocation: locObj,
+			mapCenter: locObj
 		});
 	};
 	  
@@ -451,7 +455,7 @@ class Main extends Component {
 			handleVote: this.handleVote,
 			handleOverlay: this.handleOverlay,
 			handleLogout: this.handleLogout
-		}
+		};
 		
 		return (
 			<div className="main-container">

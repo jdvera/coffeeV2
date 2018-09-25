@@ -36,10 +36,8 @@ const Results = props =>
 		{(props.state.votesAllArr.length > 0 && props.state.locationSubmitted) &&
 			<div id="votes-container">{
 				props.state.votesAllArr.map(e => {
-					console.log("Updating votes Display");
 					props.state.nearbyArr.forEach(element => {
 						if(e.placeId === element.id) {
-							console.log("Found a voted on thing");
 							e.name = element.name;
 							e.letter = element.letter;
 						}
@@ -54,7 +52,7 @@ const Results = props =>
 
 		{props.state.locationSubmitted && <div className="row" id="info-container">
 			Location Information <br />
-			{props.state.placeInfo.map((info, key) => <span key={key}>{info}<br/></span>)}
+			{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 4 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
 			{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
 		</div>}
 
