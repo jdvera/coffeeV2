@@ -11,8 +11,9 @@ body {
   display: grid;
   margin: auto;
   padding: 20px;
-  min-height: 95%;
+  min-height: 200px;
   width: 95%;
+  max-width: 500px;
   border-width: 3px;
   border-style: solid;
   border-color: #003366;

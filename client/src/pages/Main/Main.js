@@ -8,9 +8,6 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
-	 - in prepLocationChange, add a cancel button
-	 - make sure voting letter/name appears correctly on every screen
-	 - don't show results to people who have never submitted a location (but keep the data in the state)
 */
 
 class Main extends Component {
@@ -125,11 +122,8 @@ class Main extends Component {
 		else {
 			apiCall = API.login;
 		}
-		
-		console.log("Main - CreateGroup - check if map doesn't show");
 
 		apiCall(apiObj).then(res => {
-			console.log("Main - CreateGroup API callback - check if map doesn't show");
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
 			this.setState(res.data, () => this.handleOverlay());
@@ -243,21 +237,23 @@ class Main extends Component {
 		});
 	};
 
-	showPlaceInfo = (placeKey) => {
+	showPlaceInfo = placeKey => {
 		const thisPlace = this.state.nearbyArr[placeKey];
 
-		const personLoc = this.state.currentLocation;
-		const url = "https://www.google.com/maps/dir/?api=1";
-		const origin = "&origin=" + personLoc.lat + "," + personLoc.lng;
-		const destination = "&destination=" + thisPlace.vicinity;
-		const newUrl = url + origin + destination;
+		const personLoc = typeof this.state.currentLocation.lat === "number" ? this.state.currentLocation
+			: {
+				lat: this.state.currentLocation.lat(),
+				lng: this.state.currentLocation.lng()
+			}
+
+		const url = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
 
 		let stateArr = [null, null, null, null, null];
 		stateArr[0] = "Name: " + thisPlace.name;
 		stateArr[1] = "Address: " + thisPlace.vicinity;
 		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
 		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
-		stateArr[4] = newUrl;
+		stateArr[4] = url;
 
 		this.setState({ placeKey: placeKey, placeInfo: stateArr }, () => console.log("placeKey & placeInfo updated"));
 	}
