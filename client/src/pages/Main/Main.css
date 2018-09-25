@@ -27,11 +27,11 @@
     border-radius: 20px;
  }
 
-#genText1, #genText2 {
+#gen-text-1, #gen-text-2 {
     font-family: 'Roboto', sans-serif;
     text-align: center;
 }
 
-#genText1 {
+#gen-text-1 {
     font-size: 26px;
 }

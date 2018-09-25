@@ -1,4 +1,4 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   var Groups = sequelize.define("Groups", {
     groupNum: {
       type: DataTypes.STRING,
@@ -7,6 +7,6 @@ module.exports = function(sequelize, DataTypes) {
     latAvg: DataTypes.FLOAT,
     lngAvg: DataTypes.FLOAT
   });
-  
+
   return Groups;
 };

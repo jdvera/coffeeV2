@@ -1,10 +1,8 @@
 /*global google*/
-
 import React, { Component } from "react";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 
 class Map extends Component {
-
     mapLoaded = map => {
         if (!this.props.state.map) {
             this.props.updateMapObject(map);
@@ -15,7 +13,7 @@ class Map extends Component {
         this.props.handleCenterChanged(this.props.state.map.getCenter());
     };
 
-    returnValue = (key) => {
+    returnValue = key => {
         this.props.showPlaceInfo(key);
     }
 

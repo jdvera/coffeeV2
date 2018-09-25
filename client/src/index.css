@@ -1,12 +1,4 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-}
-
-
 /* BASIC ARCHITECTURE STYLE */
-
 .home-container, .results-container, .error-container {
   display: grid;
   margin: auto;
@@ -27,241 +19,11 @@ body {
 }
 
 .row {
-    text-align: center;
+  text-align: center;
 }
-
-/*  SECTIONS  */
-
-.section {
-  clear: both;
-}
-
-#sectionStyle {
-  padding: 10px;
-  border-width: 0.5px;
-  border-style: solid;
-  border-color: lightgray;
-  border-radius: 15px;
-  margin-bottom: 10px;
-}
-
-#sectionStyle2 {
-  padding: 10px;
-  margin-bottom: 20px;
-  border-width: 0.5px;
-  border-style: solid;
-  border-color: lightgray;
-  border-radius: 15px;
-}
-
-#sectionStyle3 {
-  background-color: #e3f2fd;
-  padding: 10px;
-  border-radius: 15px;
-}
-
-/*  COLUMN SETUP  */
-
-.col {
-  display: block;
-  float:left;
-  margin: 1% 0 1% 1.6%;
-
-}
-
-.col:first-child { margin-left: 0; }
-
 
 form {
-    font-family: 'Oswald', sans-serif;
-}
-
-/*  GROUPING  */
-.group:after { clear:both;}
-.group { zoom:1; /* For IE 6/7 */ }
-
-/*  GO FULL WIDTH BELOW 480 PIXELS */
-@media only screen and (max-width: 480px) {
-  .home-container, .results-container, .error-container {
-    width: 90%;
-  }
-}
-
-/* BUTTON STYLING */
-
-button {
-    background: #0060C0;
-    text-decoration: none;
-    color: white;
-    height: 40px;
-    max-width: 260px;
-    width: 95%;
-    margin: 4px 2px;
-    border-radius: 25px;
-    padding: 5px 20px;
-    transition: all 0.3s ease 0s;
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-    font-size: 17px;
-}
-button:hover {
-  box-shadow: inset 0 0 0 5px #198CFF;
-}
-
-
-.chatbutton {
-  background-color: #0060C0;
-  border: none;
-  color: white;
-  height: 30px;
-  width: 75px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 25px;
-  padding: 5px 10px;
-  font-family: 'Roboto', sans-serif;
-}
-
-/* STYLING FOR LOGO */
-
-#img-style {
-  text-align: center;
-  width: 65%;
-  max-width: 290px; 
-}
-
-#logoStyle {
-  font-family: 'Alfa Slab One', cursive;
-  font-size: 36px;
-  color: #0060C0;
-  opacity: 0.95;
-}
-
-/* FONT STYLES */
-
-#fontStyle {
-font-family: 'Alfa Slab One', cursive;
-margin-bottom: -30px;
-font-size: 82px;
-color: #0060C0;
-}
-
-#fontStyle1 {
-font-family: 'Alfa Slab One', cursive;
-margin-top: 0px;
-font-size: 55px;
-color: #0060C0;
-}
-
-#fontStyle2 {
-font-family: 'Alfa Slab One', cursive;
-font-size: 44px;
-margin-bottom: 10px;
-color: #198CFF;
-}
-
-#fontStyle3 {
-  font-family: 'Alfa Slab One', cursive;
-  font-size: 22px;
-  text-align: center;
-  color: #198CFF;
-  opacity: 0.95;
-
-}
-
-/* ANIMATION */
-
-@keyframes logoFadeIn {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes logoFadeIn2 {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-
-
-
-
-.first-fade {
-  opacity: 0;
-  animation-name: logoFadeIn;
-  animation-duration: 2.0s;
-  animation-fill-mode: forwards;
-}
-
-.second-fade {
-  opacity: 0;
-  animation-name: logoFadeIn2;
-  animation-duration: 2.0s;
-  animation-fill-mode: forwards;
-}
-
-/* RESULTS PAGE STYLE 
-*/
-#map {
-  display: block;
-  margin: auto;
-  margin-bottom: 10px;
-  max-width: 100%;
-  min-height: 300px;
-}
-
-#chat {
-  display: block;
-  width: 100%;
-}
-
-#chat-messages {
-  height: 250px;
-  overflow: auto;
-  padding: 5px;
-  background-color: #ffffff;
-font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  color: #003366;
-  border-radius: 15px;
-}
-
-#chat-bar {
-  display: block;
-  max-width: 90%;
-  text-align: center;
-  margin-top: 5px;
-}
-
-#chat-input {
-  padding: 5px;
-  background-color: #ffffff;
-  border-radius: 15px;
-}
-
-#reviewsBox {
-  padding: 5px;
-  background-color: #ffffff;
-  font-size: 14px;
-/*  height: 75px;*/
-  border-radius: 15px;
+  font-family: 'Oswald', sans-serif;
 }
 
 #users-online {
@@ -272,33 +34,52 @@ font-family: 'Roboto', sans-serif;
   border-radius: 15px;
 }
 
-/* STYLING FOR CHAT WINDOW 
-*/
-.player1 {
-  color: #419d78;
-}
-
-.player0 {
-  color: #000;
-}
-
-/* INPUT, FORM STYLE 
-*/
-#myForm, #custom-input, #new-user-form {
-font-family: 'Alfa Slab One', cursive;
-color: #0060C0;
+/* BUTTON STYLING */
+button {
+  background: #0060C0;
+  text-decoration: none;
+  color: white;
+  height: 40px;
+  max-width: 260px;
+  width: 95%;
+  margin: 4px 2px;
+  border-radius: 25px;
+  padding: 5px 20px;
+  transition: all 0.3s ease 0s;
   text-align: center;
-  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 17px;
 }
 
-#userName, #userPass, #newUserName, #newUserPass, #newUserAddress, #custom-input{
-  
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  color: #003366;
-  border-radius: 15px;
-  border-width: 0.5px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  padding: 5px;
+button:hover {
+  box-shadow: inset 0 0 0 5px #198CFF;
+}
+
+/* STYLING FOR LOGO */
+#img-style {
+  text-align: center;
+  width: 65%;
+  max-width: 290px; 
+}
+
+#font-style {
+font-family: 'Alfa Slab One', cursive;
+margin-bottom: -30px;
+font-size: 82px;
+color: #0060C0;
+}
+
+#font-style-2 {
+font-family: 'Alfa Slab One', cursive;
+font-size: 44px;
+margin-bottom: 10px;
+color: #198CFF;
+}
+
+
+/*  GO FULL WIDTH BELOW 480 PIXELS */
+@media only screen and (max-width: 480px) {
+  .home-container, .results-container, .error-container {
+    width: 90%;
+  }
 }

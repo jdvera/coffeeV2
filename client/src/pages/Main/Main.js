@@ -8,6 +8,7 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
+	- List out online users
 */
 
 class Main extends Component {
@@ -152,9 +153,7 @@ class Main extends Component {
 
 //  ----- Results-specific functions
 	updateMapObject = value => {
-		this.setState({ map: value }, () => {
-			this.loadFirebase();
-		});
+		this.setState({ map: value }, this.loadFirebase);
 	};
 
 	handleClipboard = () => {
@@ -165,7 +164,6 @@ class Main extends Component {
 		//  -- Center listener
 		firebase.database().ref('group/' + this.state.groupNum + '/center').on('value', snapshot => {
 			if(snapshot.val()) {
-				console.log(" ---- Firebase gave val");
 				const latLng = {
 					lat: snapshot.val().latAvg,
 					lng: snapshot.val().lngAvg
@@ -209,11 +207,11 @@ class Main extends Component {
 							stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
 						}
 
-						this.setState(stateObj, () => console.log("Firebase/Places - Location submitted"));
+						this.setState(stateObj);
 					});
 				}
 				else {
-					this.setState(stateObj, () => console.log("Firebase/Places - Not Submitted yet"));
+					this.setState(stateObj);
 				}
 			}
 		});
@@ -241,22 +239,21 @@ class Main extends Component {
 	showPlaceInfo = placeKey => {
 		const thisPlace = this.state.nearbyArr[placeKey];
 
-		const personLoc = typeof this.state.currentLocation.lat === "number" ? this.state.currentLocation
+		const personLoc = (typeof this.state.currentLocation.lat === "number")
+			? this.state.currentLocation
 			: {
 				lat: this.state.currentLocation.lat(),
 				lng: this.state.currentLocation.lng()
 			}
-
-		const url = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
 
 		let stateArr = [null, null, null, null, null];
 		stateArr[0] = "Name: " + thisPlace.name;
 		stateArr[1] = "Address: " + thisPlace.vicinity;
 		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
 		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
-		stateArr[4] = url;
+		stateArr[4] = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
 
-		this.setState({ placeKey: placeKey, placeInfo: stateArr }, () => console.log("placeKey & placeInfo updated"));
+		this.setState({ placeKey: placeKey, placeInfo: stateArr });
 	}
 
 	handleVote = event => {
@@ -310,7 +307,7 @@ class Main extends Component {
 			zoom: 14
 		};
 
-		this.setState(stateObj, () => console.log("Allowing user to submit new location"));
+		this.setState(stateObj);
 	}
 
 	submitLocation = () => {
@@ -368,7 +365,6 @@ class Main extends Component {
 	handleLogout = event => {
 		event.preventDefault();
 		API.logout().then((res) => {
-			console.log("Logout response:", res);
 			this.setState({
 				username: "",
 				password: "",
@@ -399,7 +395,7 @@ class Main extends Component {
 				votedFor: null,
 				votesAll: {},
 				votesAllArr: []
-			}, () => { console.log("Logout successful"); });
+			});
         }).catch(err => console.log("err: ", err));
 	}; 
 

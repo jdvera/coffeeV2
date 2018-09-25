@@ -20,11 +20,11 @@ class Home extends Component {
 				</div>
 
 				<div className="row">
-					<div className="" id="fontStyle">coffee</div>
-					<div className="" id="fontStyle2">connection</div>
+					<div className="" id="font-style">coffee</div>
+					<div className="" id="font-style-2">connection</div>
 				</div>
 
-				<p id="genText1">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>
+				<p id="gen-text-1">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>
 				
 				<div className="row">
 					<button value="true" onClick={this.props.handleNewUser}>new user</button>
@@ -34,7 +34,7 @@ class Home extends Component {
 					<button value="false" onClick={this.props.handleNewUser}>login</button>
 				</div>
 
-				<p id="genText2">{this.props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
+				<p id="gen-text-2">{this.props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
 
 				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} />
 				
