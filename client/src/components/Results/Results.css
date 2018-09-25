@@ -30,7 +30,7 @@
     max-width: 180px;
 }
 
-#info-container, #votes-container {
+#info-container, #people-container {
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -54,6 +54,20 @@
     background: #ff0000 ;
 }
 
+#online {
+    width: 35%;
+    float:left;
+}
+
+#votes-container {
+    width: 65%;
+    float: right;
+}
+
+#people, .place-votes {
+    text-align: left;
+}
+
 
 #logout-button:hover {
     box-shadow: inset 0 0 0 5px #FC9700;
@@ -66,7 +80,7 @@
         padding: 5px 0px;
     }
     
-    #info-container, #votes-container {
+    #info-container {
         width: 100%;
         padding-top: 0px;
     }

@@ -35,22 +35,33 @@ const Results = props =>
 			<p>{props.state.mapMessage}</p>
 		</div>
 
-		{(props.state.votesAllArr.length > 0 && props.state.locationSubmitted) &&
-			<div id="votes-container">{
-				props.state.votesAllArr.map(e => {
-					props.state.nearbyArr.forEach(element => {
-						if(e.placeId === element.id) {
-							e.name = element.name;
-							e.letter = element.letter;
-						}
-					});
-					return e;
-				}).filter(e => e.name && e.val).sort((a, b) => b.val - a.val).map((e, i) => 
-					<div key={i}>
-						{`${e.letter}. ${e.name}: ${e.val}`}
-					</div>
-				)
-			}</div>}
+		<div id="people-container" className="row">
+			<div id="online">
+				Online:
+				<ul id="people">
+					{props.state.onlineArr.map((e, i) => <li key={i}>{e}</li>)}
+				</ul>
+			</div>
+
+			{(props.state.votesAllArr.length > 0 && props.state.locationSubmitted) &&
+				<div id="votes-container">
+					Votes:
+					{props.state.votesAllArr.map(e => {
+						props.state.nearbyArr.forEach(element => {
+							if(e.placeId === element.id) {
+								e.name = element.name;
+								e.letter = element.letter;
+							}
+						});
+						return e;
+					}).filter(e => e.name && e.val).sort((a, b) => b.val - a.val).map((e, i) => 
+						<div className="place-votes" key={i}>
+							{`${e.letter}. ${e.name}: ${e.val}`}
+						</div>
+					)}
+				</div>
+			}
+		</div>
 
 		{props.state.locationSubmitted && <div className="row">
 			<div id="info-container">

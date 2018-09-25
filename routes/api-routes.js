@@ -33,9 +33,11 @@ module.exports = function (app) {
             console.log(" --- Created UserGroup Successfully --- ");
             res.json({
                 userGroupId: dbUserGroups.id,
+                userId: dbUserGroups.userId,
                 groupNum: dbUserGroups.groupNum,
                 isCreator: dbUserGroups.isCreator
             });
+            firebase.database().ref('group/' + req.body.groupNum + '/online').push(req.user.username);
         }).catch(function (err) {
             console.log(" -------- db.UserGroups Create error -------- ");
             console.log(err);
@@ -69,57 +71,7 @@ module.exports = function (app) {
                 where: { id: req.body.userGroupId }
             }).then(function () {
                 res.json({ success: true });
-
-                db.UserGroups.findAll({
-                    where: {
-                        groupNum: req.body.groupNum,
-                        lat: { [Op.ne]: null }
-                    }
-                }).then(function (dbUserGroupsFindAll) {
-                    console.log(' --- dbUserGroupsFindAll --- ');
-                    console.log(JSON.stringify(dbUserGroupsFindAll, null, 3));
-                    var latArr = [];
-                    var lngArr = [];
-
-                    for (var i = 0; i < dbUserGroupsFindAll.length; i++) {
-                        latArr.push(dbUserGroupsFindAll[i].lat);
-                        lngArr.push(dbUserGroupsFindAll[i].lng);
-                    }
-
-                    var latMax = latArr.reduce(function (a, b) {
-                        return Math.max(a, b);
-                    });
-                    var latMin = latArr.reduce(function (a, b) {
-                        return Math.min(a, b);
-                    });
-                    var lngMax = lngArr.reduce(function (a, b) {
-                        return Math.max(a, b);
-                    });
-                    var lngMin = lngArr.reduce(function (a, b) {
-                        return Math.min(a, b);
-                    });
-
-
-                    var updateObj = {
-                        latAvg: (latMax + latMin) / 2,
-                        lngAvg: (lngMax + lngMin) / 2
-                    }
-
-                    db.Groups.update(updateObj, {
-                        where: { groupNum: req.body.groupNum }
-                    }).then(function () {
-                        console.log(" ----- Updating Firebase ----- ")
-                        firebase.database().ref('group/' + req.body.groupNum + '/center').set(updateObj);
-                    }).catch(function (groupsUpdateErr) {
-                        console.log(" -------- db.Groups Update error -------- ");
-                        console.log(groupsUpdateErr);
-                    });
-
-                }).catch(function (findAllErr) {
-                    console.log(" -------- db.UserGroups Find All error -------- ");
-                    console.log(findAllErr);
-                });
-
+                calcCenter(req.body.groupNum);
             }).catch(function (UpdateErr) {
                 console.log(" -------- db.UserGroups Update error -------- ");
                 console.log(UpdateErr);
@@ -127,9 +79,66 @@ module.exports = function (app) {
             });
     });
 
+    var calcCenter = function(groupNum) {
+        db.UserGroups.findAll({
+            where: {
+                groupNum: groupNum,
+                lat: { [Op.ne]: null }
+            }
+        }).then(function (dbUserGroupsFindAll) {
+            console.log(' --- dbUserGroupsFindAll --- ');
+            console.log(JSON.stringify(dbUserGroupsFindAll, null, 3));
+            var latArr = [];
+            var lngArr = [];
+
+            for (var i = 0; i < dbUserGroupsFindAll.length; i++) {
+                latArr.push(dbUserGroupsFindAll[i].lat);
+                lngArr.push(dbUserGroupsFindAll[i].lng);
+            }
+
+            var latMax = latArr.reduce(function (a, b) {
+                return Math.max(a, b);
+            });
+            var latMin = latArr.reduce(function (a, b) {
+                return Math.min(a, b);
+            });
+            var lngMax = lngArr.reduce(function (a, b) {
+                return Math.max(a, b);
+            });
+            var lngMin = lngArr.reduce(function (a, b) {
+                return Math.min(a, b);
+            });
+
+
+            var updateObj = {
+                latAvg: (latMax + latMin) / 2,
+                lngAvg: (lngMax + lngMin) / 2
+            }
+
+            db.Groups.update(updateObj, {
+                where: { groupNum: groupNum }
+            }).then(function () {
+                console.log(" ----- Updating Firebase ----- ")
+                firebase.database().ref('group/' + groupNum + '/center').set(updateObj);
+            }).catch(function (groupsUpdateErr) {
+                console.log(" -------- db.Groups Update error -------- ");
+                console.log(groupsUpdateErr);
+            });
+
+        }).catch(function (findAllErr) {
+            console.log(" -------- db.UserGroups Find All error -------- ");
+            console.log(findAllErr);
+        });
+    };
+
 
     // Route for logging user out
-    app.get("/logout", function (req, res) {
+    app.get("/logout/:groupNum/:firebaseKey/:userId", function (req, res) {
+        firebase.database().ref('group/' + req.params.groupNum + '/online').child(req.params.firebaseKey).remove(function(){console.log(" =========== Did i work?")});
+        db.UserGroups.destroy({ where: { groupNum: req.params.groupNum, userId: req.params.userId }}).then(function(){
+            console.log("I think it worked?");
+            calcCenter(req.params.groupNum);
+        });
         req.logout();
         res.send(true);
     });

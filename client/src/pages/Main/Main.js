@@ -8,7 +8,8 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
-	- List out online users
+	- Make user locations yellow
+	- Make Map a carousel
 */
 
 class Main extends Component {
@@ -23,10 +24,13 @@ class Main extends Component {
 		groupNum: window.location.pathname.split("/")[2] || null,
 		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 		showResultsPage: false,
+		userId: null,
 		userGroupId: null,
 		isCreator: null,
 
 		// - Results page
+		firebaseKey: null,
+		onlineArr: [],
 		url: null,
 		copied: false,
 		currentLocation: null,
@@ -234,6 +238,22 @@ class Main extends Component {
 				});
 			}
 		});
+
+		//  -- Online listener
+		firebase.database().ref('group/' + this.state.groupNum + '/online').on('value', snapshot => {
+			if(snapshot.val()) {
+				const stateObj = {};
+				const onlineArr = [];
+				for(const item in snapshot.val()){
+					if (this.state.firebaseKey === null && snapshot.val()[item] === this.state.username) {
+						stateObj.firebaseKey = item;
+					}
+					onlineArr.push(snapshot.val()[item]);
+				}
+				stateObj.onlineArr = onlineArr;
+				this.setState(stateObj, () => console.log(stateObj));
+			}
+		});
 	};
 
 	showPlaceInfo = placeKey => {
@@ -263,7 +283,7 @@ class Main extends Component {
 		if (prevVote !== thisVote) {
 			const votesAll = this.state.votesAll;
 			if (prevVote !== null) {
-				votesAll[prevVote] = votesAll[prevVote] - 1;
+				votesAll[prevVote]--;
 			}
 			votesAll[thisVote] = votesAll[thisVote] ? votesAll[thisVote] + 1 : 1;
 			
@@ -364,7 +384,15 @@ class Main extends Component {
 
 	handleLogout = event => {
 		event.preventDefault();
-		API.logout().then((res) => {
+		const allVotes = this.state.votesAll;
+		for(const p in allVotes) {
+			if (allVotes[p] === this.state.votedFor) {
+				allVotes[p]--;
+			}
+		}
+		firebase.database().ref('group/' + this.state.groupNum + '/votes').set(allVotes);
+
+		API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId).then(res => {
 			this.setState({
 				username: "",
 				password: "",
@@ -376,6 +404,8 @@ class Main extends Component {
 				showResultsPage: false,
 				userGroupId: null,
 				isCreator: null,
+				firebaseKey: null,
+				onlineArr: [],
 				url: null,
 				copied: false,
 				currentLocation: null,
@@ -459,6 +489,3 @@ class Main extends Component {
 }
 
 export default Main;
-
-
-
