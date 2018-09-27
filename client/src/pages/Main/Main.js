@@ -8,7 +8,6 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
-	- Make user locations yellow
 	- Make Map a carousel
 */
 
@@ -266,12 +265,11 @@ class Main extends Component {
 				lng: this.state.currentLocation.lng()
 			}
 
-		let stateArr = [null, null, null, null, null];
+		let stateArr = [null, null, null, null];
 		stateArr[0] = "Name: " + thisPlace.name;
-		stateArr[1] = "Address: " + thisPlace.vicinity;
-		stateArr[2] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
-		stateArr[3] = "Rating: " + (thisPlace.rating || "Unknown");
-		stateArr[4] = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
+		stateArr[1] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
+		stateArr[2] = "Rating: " + (thisPlace.rating || "Unknown");
+		stateArr[3] = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
 
 		this.setState({ placeKey: placeKey, placeInfo: stateArr });
 	}
@@ -489,3 +487,6 @@ class Main extends Component {
 }
 
 export default Main;
+
+
+// asdfasdf

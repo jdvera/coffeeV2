@@ -34,13 +34,21 @@ class Map extends Component {
                 onCenterChanged={this.getCenter.bind(this)}
                 defaultOptions={mapOptions}
             >
-                <Marker position={this.props.state.potentialLocation} />
+                {/* User's location */}
+                <Marker 
+                    position={this.props.state.potentialLocation}
+                    icon={{ url: 'https://mt.google.com/vt/icon/psize=16&font=fonts/arialuni_t.ttf&name=icons/spotlight/spotlight-waypoint-a.png&ax=44&ay=48&scale=1' }}
+                />
+
+                {/* Group's location */}
                 {(this.props.state.groupCenter && !this.props.state.waitingForResponse) &&
                     <Marker
                         position={this.props.state.groupCenter}
                         icon={{ url: window.location.origin + "/images/blue_pin.png", scaledSize: new google.maps.Size(28, 46) }}
                     />
                 }
+                
+                {/* Result locations */}
                 {(this.props.state.nearbyArr.length > 0 && !this.props.state.neverSubmitted) &&
                     this.props.state.nearbyArr.map((place, index) => {
                         return <Marker key={index} position={place.geometry.location} label={place.letter} onClick={() => this.returnValue(index)} />

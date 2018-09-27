@@ -13,10 +13,7 @@ const Results = props =>
 			<div id="first-button">
 				<button id="logout-button" onClick={props.handleLogout}>Logout</button>
 			</div>
-			<div id="second-button">
-				{/* intentionally blank */}
-			</div>
-			<div id="third-button">
+			<div id="fourth-button">
 				<button id="url-button" onClick={props.handleOverlay}>show url</button>
 			</div>
 		</div>
@@ -38,7 +35,7 @@ const Results = props =>
 		<div id="people-container" className="row">
 			<div id="online">
 				Online:
-				<ul id="people">
+				<ul id="people" style={(props.state.votesAllArr.length > 0 && props.state.locationSubmitted) ? { borderRightStyle: "solid", borderRightRadius: "2px", borderColor: "black" } : {}}>
 					{props.state.onlineArr.map((e, i) => <li key={i}>{e}</li>)}
 				</ul>
 			</div>
@@ -66,7 +63,7 @@ const Results = props =>
 		{props.state.locationSubmitted && <div className="row">
 			<div id="info-container">
 				Location Information <br />
-				{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 4 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
+				{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 3 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
 				{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
 			</div>
 		</div>}
@@ -94,3 +91,6 @@ const Results = props =>
 	</div>
 
 export default Results;
+
+
+// asdfasfasdfasdf
