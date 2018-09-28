@@ -34,7 +34,7 @@ class Home extends Component {
 					<button value="false" onClick={this.props.handleNewUser}>login</button>
 				</div>
 
-				<p id="gen-text-2">{this.props.state.isJoining ? "" : "to join an existing group, use the url provided to the one who made it"}</p>	
+				{this.props.state.isJoining ? <p id="gen-text-2">or <a href="/">create a new group</a></p> : <p id="gen-text-2">to join an existing group, use the url provided to the one who made it"</p>}	
 
 				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} />
 				

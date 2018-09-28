@@ -425,7 +425,15 @@ class Main extends Component {
 				votesAllArr: []
 			});
         }).catch(err => console.log("err: ", err));
-	}; 
+	};
+
+	componentDidMount() {
+		window.addEventListener("beforeunload", this.handleLogout);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("beforeunload", this.handleLogout)
+	}
 
 	
 
@@ -487,6 +495,3 @@ class Main extends Component {
 }
 
 export default Main;
-
-
-// asdfasdf

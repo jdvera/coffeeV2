@@ -4,7 +4,7 @@ import Map from "../Map";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { isMobile } from "react-device-detect";
 
-const mapHeight = isMobile ? `300px` : `500px`;
+const mapHeight = isMobile ? `250px` : `500px`;
 
 const Results = props =>
 
@@ -18,7 +18,7 @@ const Results = props =>
 			</div>
 		</div>
 
-		<div className="row my-map">
+		<div className="my-map">
 			<Map
 				state={props.state}
 				handleCenterChanged={props.handleCenterChanged}
@@ -91,6 +91,3 @@ const Results = props =>
 	</div>
 
 export default Results;
-
-
-// asdfasfasdfasdf
