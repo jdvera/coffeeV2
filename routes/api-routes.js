@@ -10,7 +10,28 @@ module.exports = function (app) {
     app.post("/api/login", passport.authenticate("local"), function (req, res) {
         console.log(" --------------- cb for POST /api/login--------------- ");
 
-        if (!req.body.isJoining) {
+        if (req.body.isJoining) {
+            console.log(" --------------- user joining existing group --------------- ");
+            db.UserGroups.findOne({
+                where: {
+                    groupNum: req.body.groupNum,
+                    userId: req.user.id
+                }
+            }).then(function(dbResponse){
+                if(dbResponse) {
+                    console.log(" --------------- Login, user already logged into this group --------------- ");
+                    res.status(409).json({ response: { status: 409 } });
+                }
+                else {
+                    createUserGroup(req, res);
+                }
+            }).catch(function(err){
+                console.log(" --------------- db.UserGroups login Joining error --------------- ");
+                console.log(err);
+                res.json(err);
+            })
+        }
+        else {
             console.log(" --------------- creating brand new group ---------------  ");
             req.body.groupNum = (Math.random() + " ").substring(2, 10) + (Math.random() + " ").substring(2, 10);
 
@@ -20,11 +41,8 @@ module.exports = function (app) {
             }).catch(function (err) {
                 console.log(" --------------- db.Groups error --------------- ");
                 console.log(err);
+                res.json(err);
             });
-        }
-        else {
-            console.log(" --------------- user joining existing group --------------- ");
-            createUserGroup(req, res);
         }
     });
 
@@ -41,12 +59,10 @@ module.exports = function (app) {
         }).catch(function (err) {
             console.log(" --------------- db.UserGroups Create error --------------- ");
             console.log(err);
+            res.json(err);
         });
     }
 
-    // Route for signing up a user. The user's password is automatically hashed and stored securely thanks to
-    // how we configured our Sequelize User Model. If the user is created successfully, proceed to log the user in,
-    // otherwise send back an error
     app.post("/api/signup", function (req, res) {
         console.log(" --------------- signup --------------- ");
         console.log(JSON.stringify(req.body, null, 3));
@@ -145,6 +161,8 @@ module.exports = function (app) {
 
     // Route for logging user out
     app.get("/logout/:groupNum/:firebaseKey/:userId", function (req, res) {
+        req.logout();
+
         firebase.database()
             .ref('group/' + req.params.groupNum + '/online')
             .child(req.params.firebaseKey)
@@ -171,9 +189,11 @@ module.exports = function (app) {
         }).then(function(){
             console.log(" --------------- UserGroups - deleted user " + req.params.userId + " from group " + req.params.groupNum + " --------------- ");
             calcCenter(req.params.groupNum);
+            res.send(true);
+        }).catch(function(err){
+            console.log(" --------------- db.UserGroups logout error --------------- ");
+            res.json(err);
         });
-        req.logout();
-        res.send(true);
     });
 };
 

@@ -16,12 +16,12 @@ class Home extends Component {
 				</div>
 
 				<div className="row">
-						<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="img-style" />
+					<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="img-style" />
 				</div>
 
 				<div className="row">
 					<div className="" id="font-style">coffee</div>
-					<div className="" id="font-style-2">connection</div>
+					<div className="" id="font-style-2">connect</div>
 				</div>
 
 				<p id="gen-text-1">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>

@@ -80,6 +80,7 @@ class Main extends Component {
 			stateObj.username = "";
 			stateObj.password = "";
 			stateObj.retype = "";
+			stateObj.message = "";
 		}
 
 		this.setState(stateObj, () => {
@@ -128,27 +129,38 @@ class Main extends Component {
 		}
 
 		apiCall(apiObj).then(res => {
+			console.log('res', res);
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
 			this.setState(res.data, () => this.handleOverlay());
 		}).catch(err => {
+			console.log('err', err);
 			let stateObj;
 
-			if (err.response.status === 422) {
-				stateObj = {
-					message: "That Screen Name is already taken :(",
-					username: ""
-				};
-			}
-			else if (err.response.status === 401) {
-				stateObj = {
-					message: "Screen Name or Password incorrect",
-					username: "",
-					password: ""
-				};
+			switch(err.response.status) {
+				case 422:
+					stateObj = {
+						message: "That Screen Name is already taken :(",
+						username: ""
+					};
+					break;
+				case 401:
+					stateObj = {
+						message: "Screen Name or Password incorrect",
+						username: "",
+						password: ""
+					};
+					break;
+				case 409:
+					stateObj = {
+						message: "You are already logged into this group"
+					}
+					break;
+				default:
+					break;
 			}
 
-			this.setState(stateObj, () => console.log(err.response.data));
+			this.setState(stateObj);
 		});
 	};
 
@@ -176,10 +188,12 @@ class Main extends Component {
 					groupCenter: latLng,
 					votedFor: null,
 					votesAll: {},
+					zoom: 14,
 					votesAllArr: [],
 					placeInfo: [],
 					nearbyArr: [],
-					placeKey: null
+					placeKey: null,
+					mapMessage: "Group Center Changed"
 				};
 				const request = {
 					location: latLng,
@@ -210,11 +224,11 @@ class Main extends Component {
 							stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
 						}
 
-						this.setState(stateObj);
+						this.setState(stateObj, () => {setTimeout(() => this.setState({ mapMessage: "" }), 2500)});
 					});
 				}
 				else {
-					this.setState(stateObj);
+					this.setState(stateObj, () => {setTimeout(() => this.setState({ mapMessage: "" }), 2500)});
 				}
 			}
 		});
@@ -382,49 +396,51 @@ class Main extends Component {
 
 	handleLogout = event => {
 		event.preventDefault();
-		const allVotes = this.state.votesAll;
-		for(const p in allVotes) {
-			if (allVotes[p] === this.state.votedFor) {
-				allVotes[p]--;
+		if(this.state.showResultsPage){
+			const allVotes = this.state.votesAll;
+			for(const p in allVotes) {
+				if (allVotes[p] === this.state.votedFor) {
+					allVotes[p]--;
+				}
 			}
+			firebase.database().ref('group/' + this.state.groupNum + '/votes').set(allVotes);
+	
+			API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId).then(res => {
+				this.setState({
+					username: "",
+					password: "",
+					retype: "",
+					createNewUser: false,
+					message: "",
+					groupNum: window.location.pathname.split("/")[2] || null,
+					isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
+					showResultsPage: false,
+					userGroupId: null,
+					isCreator: null,
+					firebaseKey: null,
+					onlineArr: [],
+					url: null,
+					copied: false,
+					currentLocation: null,
+					potentialLocation: null,
+					map: null,
+					mapMessage: null,
+					mapCenter: null,
+					zoom: 14,
+					waitingForResponse: false,
+					groupCenter: null,
+					locationSubmitted: false,
+					neverSubmitted: true,
+					showCancel: false,
+					nearbyArr: [],
+					placeKey: null,
+					placeInfo: [],
+					votedFor: null,
+					votesAll: {},
+					votesAllArr: []
+				});
+			}).catch(err => console.log("err: ", err));
 		}
-		firebase.database().ref('group/' + this.state.groupNum + '/votes').set(allVotes);
-
-		API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId).then(res => {
-			this.setState({
-				username: "",
-				password: "",
-				retype: "",
-				createNewUser: false,
-				message: "",
-				groupNum: window.location.pathname.split("/")[2] || null,
-				isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
-				showResultsPage: false,
-				userGroupId: null,
-				isCreator: null,
-				firebaseKey: null,
-				onlineArr: [],
-				url: null,
-				copied: false,
-				currentLocation: null,
-				potentialLocation: null,
-				map: null,
-				mapMessage: null,
-				mapCenter: null,
-				zoom: 14,
-				waitingForResponse: false,
-				groupCenter: null,
-				locationSubmitted: false,
-				neverSubmitted: true,
-				showCancel: false,
-				nearbyArr: [],
-				placeKey: null,
-				placeInfo: [],
-				votedFor: null,
-				votesAll: {},
-				votesAllArr: []
-			});
-        }).catch(err => console.log("err: ", err));
 	};
 
 	componentDidMount() {
@@ -440,6 +456,13 @@ class Main extends Component {
 	//  Current Location stuff
 	success = pos => {
 		const locObj = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+		if(pos.coords.latitude < 28 || pos.coords.latitude > 32) {
+			locObj.lat = 30.2672;
+		}
+		if(pos.coords.longitude < -99 || pos.coords.longitude > -95) {
+			locObj.lng = -97.7431;
+		}
+		
 		this.setState({
 			currentLocation: locObj,
 			potentialLocation: locObj,
