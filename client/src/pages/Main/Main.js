@@ -8,7 +8,8 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
-	- Make Map a carousel
+	- Make Map a carousel, or something to help toggle it
+	- dropdown for user's to change what type of results appear (cafes, bars, etc.)
 */
 
 class Main extends Component {
@@ -20,8 +21,8 @@ class Main extends Component {
 		retype: "",
 		createNewUser: false,
 		message: "",
-		groupNum: window.location.pathname.split("/")[2] || null,
 		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
+		groupNum: window.location.pathname.split("/")[2] || null,
 		showResultsPage: false,
 		userId: null,
 		userGroupId: null,
@@ -157,10 +158,13 @@ class Main extends Component {
 					}
 					break;
 				default:
+					window.location.href = window.location.origin + "/fourohfour";
 					break;
 			}
 
-			this.setState(stateObj);
+			if(stateObj.message) {
+				this.setState(stateObj);
+			}
 		});
 	};
 
@@ -444,6 +448,13 @@ class Main extends Component {
 	};
 
 	componentDidMount() {
+		if (this.state.isJoining) {
+			API.checkGroup(this.state.groupNum).then(res => {
+				if(!res.data) {
+					window.location.href = window.location.origin + "/fourohfour";
+				}
+			}).catch(err => console.log("err: ", err));
+		}
 		window.addEventListener("beforeunload", this.handleLogout);
 	}
 

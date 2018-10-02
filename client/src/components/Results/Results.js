@@ -60,11 +60,11 @@ const Results = props =>
 			}
 		</div>
 
-		{props.state.locationSubmitted && <div className="row">
+		{props.state.placeKey !== null && <div className="row">
 			<div id="info-container">
 				Location Information <br />
 				{props.state.placeInfo.map((info, key) => <span key={key}>{ key === 3 ? <a href={info} target="_blank">Directions on Google</a> : info }<br/></span>)}
-				{props.state.placeKey !== null && <button id="vote-button" onClick={props.handleVote}>Vote</button>}
+				<button id="vote-button" onClick={props.handleVote}>Vote</button>
 			</div>
 		</div>}
 

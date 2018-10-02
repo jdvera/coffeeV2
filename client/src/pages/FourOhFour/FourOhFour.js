@@ -10,15 +10,16 @@ class FourOhFour extends Component {
                 </div>
 
                 <div className="row">
-                    <img src={window.location.origin + "/images/coffeebrokenNEW.png"} alt="404" id="imgStyle" />
+                    <img src={window.location.origin + "/images/coffeebrokenNEW.png"} alt="404" id="img-style" />
                 </div>	
                 
-                <div className="row" id="fontStyle">
+                <div className="row" id="font-style">
                     oops!
                 </div>
                 
-                <div className="row" id="fontStyle3">
-                    <h2>you broke the internet!</h2>
+                <div className="row">
+                    <p id="font-style-3">you are likely trying to join a group that no longer exist</p>
+                    <span>try going to the homepage and making a new group</span>
                 </div>
                     
                 <div className="row">
