@@ -13,9 +13,9 @@ const Results = props =>
 			<div id="first-button">
 				<button id="logout-button" onClick={props.handleLogout}>Logout</button>
 			</div>
-			<div id="fourth-button">
+			{/* <div id="fourth-button">
 				<button id="url-button" onClick={props.handleOverlay}>show url</button>
-			</div>
+			</div> */}
 		</div>
 
 		<div className="my-map">

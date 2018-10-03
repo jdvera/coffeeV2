@@ -19,7 +19,7 @@ class Map extends Component {
 
     render() {
         const mapOptions = {
-            fullscreenControl: false,
+            // fullscreenControl: false,
             streetViewControl: false,
             mapTypeControl: false
         };

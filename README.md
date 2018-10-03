@@ -1,7 +1,7 @@
 # Coffee Connect #
 ### An App to help indecicive people figure out where to meet ###
 
-Note - For the app to work as intended, it will need access to the user's current location.  **This location is not permanently saved anywhere, and is only used to define the map's starting center**
+Note - For the app to work as intended, it will need access to the user's current location.  **This location is not permanently stored anywhere, and is only used to define the map's starting center**
 
 To use the app: 
 - One person in the group will need to go to the [homepage](https://whispering-peak-26762.herokuapp.com/)
@@ -11,12 +11,12 @@ To use the app:
 - On the following screen, users will see a modal containing the URL needed to join the group.  This link will need to be provided to all other members of the group
     - The group cannot be joined without using this link
     - All other group members will see a similar login/signup screen, but a new group will not be created
-- After logging in, users will need to move the map around until the Green center marker is over their prefered starting location
+- After logging in, users can move the map around until the Green center marker is over their prefered starting location
     - By default, the map is centered on the user's current location
         - This location is not guaranteed to be on the user's precise location, and can sometimes be very off due to inconsistencies with the navigator API
-    - Users cannot see other people's current or submitted location, only their own
-    - It is not required to have an extremely precise location submitted, unless the user wants to see directions from a precice location
-- As users submit their locations, a Blue dotted marker will appear on the map.  This is the [Group's Center Location](#calculating-group's-center-location)
+    - Users cannot see other group member's current or submitted location, only their own
+    - It is not required to submit an extremely precise location, unless the user wants to see directions from a precice location
+- As group members submit locations, a Blue dotted marker will appear on the map.  This is the [Group's Center Location](#calculating-groups-center-location)
 - If a user has submitted a location, they will also see coffee shops that are within 500 meters of the Group's Center, denoted by Red lettered markers
     - This is dependent on what Google has listed as a "cafe".  Some cafes may not appear, and some places may appear that normally wouldn't be considered cafes
     - Users that are logged in but have not yet submitted a location will not see these results
