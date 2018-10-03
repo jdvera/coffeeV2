@@ -11,7 +11,7 @@ const Results = props =>
 	<div className="results-container">
 		<div id="top-buttons">
 			<div id="first-button">
-				<button id="logout-button" onClick={props.handleLogout}>Logout</button>
+				<button id="url-button" onClick={props.handleOverlay}>show url</button>
 			</div>
 			{/* <div id="fourth-button">
 				<button id="url-button" onClick={props.handleOverlay}>show url</button>
@@ -72,6 +72,10 @@ const Results = props =>
 			<button name="locationSubmitted" onClick={props.handleLocationSubmit} style={props.state.waitingForResponse ? { background: "grey" } : { background: "#0060C0" }}>{props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
 			{ props.state.showCancel ? <button name="cancelBtn" onClick={props.handleCancelLocation}>Cancel</button> : "" }
 			<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
+		</div>
+
+		<div className="row">
+			<button id="logout-button" onClick={props.handleLogout}>Logout</button>
 		</div>
 
 		<div id="overlay">
