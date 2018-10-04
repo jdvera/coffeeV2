@@ -8,6 +8,8 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
+	- make "group center changed" message appear consistantly
+	- guarantee group nums are unique
 	- dropdown for user's to change what type of results appear (cafes, bars, etc.)
 */
 
@@ -61,9 +63,6 @@ class Main extends Component {
 	};
 
 	handleOverlay = overlayInput => {
-		console.log('overlayInput', overlayInput);
-		console.log(typeof overlayInput);
-		
 		const overlayBackground = document.getElementById("overlay-background");
 		const overlay = document.getElementById("overlay");
 
@@ -81,7 +80,10 @@ class Main extends Component {
 		const newUserOldValue = this.state.createNewUser;
 		const value = (event.target.value === "true");
 
-		const stateObj = { createNewUser: value };
+		const stateObj = {
+			createNewUser: value,
+			optionsDisplay: true
+		};
 
 		if(newUserOldValue !== value) {
 			stateObj.username = "";
@@ -90,9 +92,7 @@ class Main extends Component {
 			stateObj.message = "";
 		}
 
-		this.setState(stateObj, () => {
-			this.handleOverlay({ optionsDisplay: true });
-		});
+		this.handleOverlay(stateObj);
 	};
 
 	handleGroupSubmit = event => {

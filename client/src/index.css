@@ -1,10 +1,14 @@
 /* BASIC ARCHITECTURE STYLE */
+html, body, #root, .main-container {
+  height: 100%;
+}
+
 .home-container, .results-container, .error-container {
   display: grid;
   margin: auto;
   padding: 20px;
   height:100%;
-  min-height: 600px;
+  /* min-height: 600px; */
   width: 95%;
   max-width: 500px;
   border-width: 3px;
@@ -35,6 +39,10 @@ form {
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   border-radius: 15px;
+}
+
+::-webkit-scrollbar { 
+  display: none; 
 }
 
 /* BUTTON STYLING */

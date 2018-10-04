@@ -18,6 +18,7 @@ class Results extends Component {
 			case ("options"):
 				optionsDisplay = 
 					<div>
+						<i id="times" onClick={() => this.props.handleOverlay({optionsDisplay: false})} class="fas fa-times"></i>
 						Options<br />
 						<button id="url-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "url" })}>show url</button>
 						<br />
@@ -27,11 +28,13 @@ class Results extends Component {
 			case ("url"):
 				optionsDisplay = 
 					<div>
+						<i id="arrow" onClick={() => this.props.handleOverlay({optionsDisplay: "options"})} class="fas fa-arrow-left"></i>
+						<i id="times" onClick={() => this.props.handleOverlay({optionsDisplay: false})} class="fas fa-times"></i>
 						<br />
 						<p>Share this link with your friends</p>
 						<p>{this.props.state.url}</p>
 						<CopyToClipboard text={this.props.state.url} onCopy={this.props.handleClipboard}>
-							<a>copy to clipboard<i className="fas fa-clipboard"></i></a>
+							<a>copy to clipboard<i id="clipboard" className="fas fa-clipboard"></i></a>
 						</CopyToClipboard>
 						<div style={this.props.state.copied ? { visibility: "visible" } : { visibility: "hidden" }}>
 							copied.
