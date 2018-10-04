@@ -8,7 +8,6 @@ import Results from "../../components/Results";
 
 /* 
 	---------  THINGS TO DO ---------
-	- Make Map a carousel, or something to help toggle it
 	- dropdown for user's to change what type of results appear (cafes, bars, etc.)
 */
 
@@ -31,6 +30,7 @@ class Main extends Component {
 		// - Results page
 		firebaseKey: null,
 		onlineArr: [],
+		optionsDisplay: null,
 		url: null,
 		copied: false,
 		currentLocation: null,
@@ -60,11 +60,17 @@ class Main extends Component {
 		});
 	};
 
-	handleOverlay = () => {
+	handleOverlay = overlayInput => {
+		console.log('overlayInput', overlayInput);
+		console.log(typeof overlayInput);
+		
 		const overlayBackground = document.getElementById("overlay-background");
-		overlayBackground.style.display = (overlayBackground.style.display === "inline-block") ? "none" : "inline-block";
 		const overlay = document.getElementById("overlay");
-		overlay.style.display = (overlay.style.display === "inline-block") ? "none" : "inline-block";
+
+		overlayBackground.style.display = (overlayInput.optionsDisplay) ? "inline-block" : "none";
+		overlay.style.display = (overlayInput.optionsDisplay) ? "inline-block" : "none";
+
+		this.setState(overlayInput);
 	};
 
 
@@ -85,32 +91,26 @@ class Main extends Component {
 		}
 
 		this.setState(stateObj, () => {
-			this.handleOverlay();
+			this.handleOverlay({ optionsDisplay: true });
 		});
 	};
 
 	handleGroupSubmit = event => {
 		event.preventDefault();
 
-		let stateObj = {};
-		let callback = null;
-
 		if(!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
-			stateObj = { message: "Please fill in all fields"};
+			this.setState({ message: "Please fill in all fields"});
 		}
 		else if (this.state.createNewUser && this.state.password !== this.state.retype) {
-			stateObj = {
+			this.setState({
 				message: "Passwords do not match",
 				password: "",
 				retype: ""
-			};
+			});
 		}
 		else {
-			stateObj = { message: "" };
-			callback = this.createGroup;
+			this.createGroup();
 		}
-		
-		this.setState(stateObj, callback);
 	};
 
 	createGroup = () => {
@@ -130,10 +130,12 @@ class Main extends Component {
 		}
 
 		apiCall(apiObj).then(res => {
-			console.log('res', res);
+			console.log('res.data', res.data);
+			res.data.message = "";
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
-			this.setState(res.data, () => this.handleOverlay());
+			res.data.optionsDisplay = "url";
+			this.handleOverlay(res.data);
 		}).catch(err => {
 			console.log('err', err);
 			let stateObj;
@@ -423,6 +425,7 @@ class Main extends Component {
 					isCreator: null,
 					firebaseKey: null,
 					onlineArr: [],
+					optionsDisplay: null,
 					url: null,
 					copied: false,
 					currentLocation: null,
