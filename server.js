@@ -32,15 +32,10 @@ db.sequelize.sync({ force: true }).then(function() {
       console.log("test user 'asdf' created");
       db.Groups.create({ groupNum: "1234" }).then(function(){
         console.log("test group '1234' created");
-        db.UserGroups.create({ userId: "1", groupNum: "1234", isCreator: true }).then(function(){
-          console.log("test userGroup created");
-          console.log(" ------------------------------------------- ");
-          console.log(" ---------- END OF SERVER STARTUP ---------- ");
-          console.log(" ------------------------------------------- ");
-        });
+        console.log(" ------------------------------------------- ");
+        console.log(" ---------- END OF SERVER STARTUP ---------- ");
+        console.log(" ------------------------------------------- ");
       });
     });
   });
 });
-
-/*  */

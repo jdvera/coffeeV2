@@ -2,7 +2,7 @@
   "name": "coffeeConnect",
   "homepage" : "https://whispering-peak-26762.herokuapp.com/",
   "version": "1.0.0",
-  "description": "**Coffee Connection** is a mobile-first app designed to help remote teams communicate and find nearby coffee shops and cafes where they can connect and get work done. Using the power of Google Maps API, Coffee Connect identifies venues that are conveniently located, displays business hours and other info, and shows the most convenient routes to get there. This project utilizes Passport, Express, Sequelize and BCrypt on the back end, Firebase and MySQL for database support, and CSS3 and Bootstrap a lightweight responsive front end design.",
+  "description": "**Coffee Connect** is a mobile-first app designed to help remote teams communicate and find nearby coffee shops and cafes where they can connect and get work done. Using the power of Google Maps API, Coffee Connect identifies venues that are conveniently located, displays business hours and other info, and shows the most convenient routes to get there. This project utilizes Passport, Express, Sequelize and BCrypt on the back end, Firebase and MySQL for database support, and CSS3 and Bootstrap a lightweight responsive front end design.",
   "main": "server.js",
   "scripts": {
     "server": "node server.js",
@@ -13,13 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jdvera/coffeeConnect.git"
+    "url": "https://github.com/jdvera/coffeeV2"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jdvera/coffeeConnect/issues"
+    "url": "https://github.com/jdvera/coffeeV2/issues"
   },
   "dependencies": {
     "bcrypt": "^2.0.1",
