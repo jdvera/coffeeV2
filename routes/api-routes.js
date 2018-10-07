@@ -3,6 +3,9 @@ var db = require("../models");
 var passport = require("../config/passport");
 var firebase = require("../config/firebase");
 var Sequelize = require('sequelize');
+var google = require('@google/maps').createClient({
+   key: 'AIzaSyA4SIVKpOq6bhYAs-iWZxpSZmWkv2FpcTc'
+});
 
 module.exports = function (app) {
    var Op = Sequelize.Op;
@@ -44,11 +47,6 @@ module.exports = function (app) {
                   res.json(err);
                });
             }
-            else {
-               console.log(" --------------- db.Groups group doesn't exist --------------- ");
-               //  This isn't actually redirecting them, a catch on the client-side is
-               res.redirect(404, "/fourohfour");
-            }
          }).catch(function (err) {
             console.log(" --------------- db.Groups login Joining error --------------- ");
             console.log(err);
@@ -60,7 +58,7 @@ module.exports = function (app) {
          req.body.groupNum = (Math.random() + " ").substring(2, 10) + (Math.random() + " ").substring(2, 10);
 
          db.Groups.create({ groupNum: req.body.groupNum }).then(function () {
-            console.log(" --- new group created, now usergroup --- ");
+            console.log(" --------------- new group created, now usergroup --------------- ");
             createUserGroup(req, res);
          }).catch(function (err) {
             console.log(" --------------- db.Groups error --------------- ");
@@ -70,26 +68,8 @@ module.exports = function (app) {
       }
    });
 
-   var createUserGroup = function (req, res) {
-      db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: !req.body.isJoining }).then(function (dbUserGroups) {
-         console.log(" --------------- Created UserGroup Successfully --------------- ");
-         res.json({
-            userGroupId: dbUserGroups.id,
-            userId: dbUserGroups.userId,
-            groupNum: dbUserGroups.groupNum,
-            isCreator: dbUserGroups.isCreator
-         });
-         firebase.database().ref('group/' + req.body.groupNum + '/online').push(req.user.username);
-      }).catch(function (err) {
-         console.log(" --------------- db.UserGroups Create error --------------- ");
-         console.log(err);
-         res.json(err);
-      });
-   }
-
    app.post("/api/signup", function (req, res) {
       console.log(" --------------- signup --------------- ");
-      console.log(JSON.stringify(req.body, null, 3));
       db.Users.create({
          username: req.body.username,
          password: req.body.password
@@ -119,19 +99,76 @@ module.exports = function (app) {
             res.json(UpdateErr);
          });
    });
+   
+   app.get("/logout/:groupNum/:firebaseKey/:userId", function (req, res) {
+      req.logout();
+      var thisGroup = firebase.database().ref('group/' + req.params.groupNum);
+      var onlinePeeps = firebase.database().ref('group/' + req.params.groupNum + '/online');
 
+      onlinePeeps.child(req.params.firebaseKey).remove(function () {
+         console.log(" --------------- Firebase - removed user, checking if any others are online --------------- ");
+         onlinePeeps.once("value").then(function (snapshot) {
+            if (snapshot.val() === null) {
+               console.log(" --------------- Group empty, deleting it --------------- ");
+               thisGroup.remove(function () {
+                  console.log(" --------------- Group " + req.params.groupNum + " deleted --------------- ");
+               });
+            }
+         });
+      });
+
+      db.UserGroups.destroy({
+         where: { groupNum: req.params.groupNum, userId: req.params.userId }
+      }).then(function () {
+         console.log(" --------------- UserGroups - deleted user " + req.params.userId + " from group " + req.params.groupNum + " --------------- ");
+         calcCenter(req.params.groupNum);
+         res.send(true);
+      }).catch(function (err) {
+         console.log(" --------------- db.UserGroups logout error --------------- ");
+         res.json(err);
+      });
+   });
+
+
+
+   //  --------------------------------------------
+   //  --  END OF ROUTES, NAMED FUNCTIONS BELOW  --
+   //  --------------------------------------------
+
+   
+
+   var createUserGroup = function (req, res) {
+      db.UserGroups.create({ userId: req.user.id, groupNum: req.body.groupNum, isCreator: !req.body.isJoining }).then(function (dbUserGroups) {
+         console.log(" --------------- Created UserGroup Successfully --------------- ");
+         res.json({
+            userGroupId: dbUserGroups.id,
+            userId: dbUserGroups.userId,
+            groupNum: dbUserGroups.groupNum,
+            isCreator: dbUserGroups.isCreator
+         });
+         firebase.database().ref('group/' + req.body.groupNum + '/online').push(req.user.username);
+      }).catch(function (err) {
+         console.log(" --------------- db.UserGroups Create error --------------- ");
+         console.log(err);
+         res.json(err);
+      });
+   };
+   
    var calcCenter = function (groupNum) {
+      console.log(" --------------- calcCenter --------------- ");
       db.UserGroups.findAll({
          where: {
             groupNum: groupNum
          }
       }).then(function (dbUserGroupsFindAll) {
          console.log(" --------------- dbUserGroupsFindAll --------------- ");
-         console.log(JSON.stringify(dbUserGroupsFindAll, null, 3));
          if (dbUserGroupsFindAll.length < 1) {
             console.log(" --------------- Group " + groupNum + " is empty - deleting it");
             db.Groups.destroy({ where: { groupNum: groupNum } }).then(function () {
                console.log(" --------------- Deleted group " + groupNum + " --------------- ");
+            }).catch(function(err) {
+               console.log(" --------------- dbUserGroupsFindAll --------------- ");
+               console.log(err);
             });
             return;
          }
@@ -159,76 +196,81 @@ module.exports = function (app) {
                return Math.min(a, b);
             });
 
+            var avgLatLng = {
+               lat: (latMax + latMin) / 2,
+               lng: (lngMax + lngMin) / 2
+            };
 
-            var updateObj = {
-               latAvg: (latMax + latMin) / 2,
-               lngAvg: (lngMax + lngMin) / 2
-            }
-
-            db.Groups.update(updateObj, {
+            db.Groups.update(avgLatLng, {
                where: { groupNum: groupNum }
             }).then(function () {
-               console.log(" --------------- Updating Firebase --------------- ");
-               updateObj.timestamp = Date.now();
-               firebase.database()
-                  .ref('group/' + groupNum + '/center')
-                  .set(updateObj, function (err) {
-                     if (err) {
-                        console.log(err);
-                     }
-                     else {
-                        console.log(" --------------- Firebase updated successfully --------------- ");
-                     }
-                  });
+               googlePlaces(avgLatLng, groupNum);
             }).catch(function (groupsUpdateErr) {
                console.log(" --------------- db.Groups Update error --------------- ");
                console.log(groupsUpdateErr);
             });
          }
-         else { console.log(" --------------- CalcCenter No one online has submitted a location --------------- ") }
-
+         else {
+            console.log(" --------------- CalcCenter No one online has submitted a location --------------- ");
+         }
       }).catch(function (findAllErr) {
          console.log(" --------------- db.UserGroups Find All error --------------- ");
          console.log(findAllErr);
       });
    };
 
+   var googlePlaces = function(avgLatLng, groupNum) {
+      console.log(" --------------- Google finding places --------------- ");
 
-   // Route for logging user out
-   app.get("/logout/:groupNum/:firebaseKey/:userId", function (req, res) {
-      req.logout();
+      var letteredResults = [];
+      var request = {
+         location: avgLatLng,
+         radius: 500,
+         type: 'cafe'
+      };
 
-      firebase.database()
-         .ref('group/' + req.params.groupNum + '/online')
-         .child(req.params.firebaseKey)
-         .remove(function () {
-            console.log(" --------------- Firebase - removed user, checking if any others are online --------------- ");
-            firebase.database()
-               .ref('group/' + req.params.groupNum + '/online')
-               .once("value").then(function (snapshot) {
-                  console.log(typeof snapshot.val());
-                  console.log(snapshot.val());
-                  if (snapshot.val() === null) {
-                     console.log(" --------------- Group empty, deleting it --------------- ");
-                     firebase.database()
-                        .ref('group/' + req.params.groupNum)
-                        .remove(function () {
-                           console.log(" --------------- Group " + req.params.groupNum + " deleted --------------- ");
-                        });
-                  }
-               })
+      google.placesNearby(request, function (err, googleResults) {
+         if (err || googleResults.json.status !== "OK") {
+            console.log(" --------------- Google err --------------- ");
+            console.log(err);
+            console.log(googleResults.json.status);
+         }
+         else {
+            console.log(" --------------- Google found " + googleResults.json.results.length + " places --------------- ");
+            var labels = 'ABCDEFGHIJKLMNOPQRST';
+            var labelIndex = 0;
+            var haveLats = [];
+            var haveLngs = [];
+
+            letteredResults = googleResults.json.results.map(function (place) {
+               if (haveLats.includes(place.geometry.location.lat) && haveLngs.includes(place.geometry.location.lng)) {
+                  return null;
+               }
+               haveLats.push(place.geometry.location.lat);
+               haveLngs.push(place.geometry.location.lng);
+
+               place.letter = labels[labelIndex];
+               labelIndex++;
+               return place;
+            }).filter(function (place) {
+               return place;
+            });
+         }
+
+         console.log(" --------------- Updating Firebase --------------- ");
+         var updateObj = {
+            avgLatLng: avgLatLng,
+            googleResults: letteredResults,
+            timestamp: Date.now()
+         };
+         firebase.database().ref('group/' + groupNum + '/center').set(updateObj, function (err) {
+            if (err) {
+               console.log(err);
+            }
+            else {
+               console.log(" --------------- Firebase updated successfully --------------- ");
+            }
          });
-
-      db.UserGroups.destroy({
-         where: { groupNum: req.params.groupNum, userId: req.params.userId }
-      }).then(function () {
-         console.log(" --------------- UserGroups - deleted user " + req.params.userId + " from group " + req.params.groupNum + " --------------- ");
-         calcCenter(req.params.groupNum);
-         res.send(true);
-      }).catch(function (err) {
-         console.log(" --------------- db.UserGroups logout error --------------- ");
-         res.json(err);
       });
-   });
+   };
 };
-

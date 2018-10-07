@@ -1,4 +1,3 @@
-/*global google*/
 import React, { Component } from "react";
 import "./Main.css";
 import API from "../../utils/API";
@@ -14,7 +13,7 @@ import Results from "../../components/Results";
 */
 
 class Main extends Component {
-//  ----- State and General Functions
+	//  ----- State and General Functions
 	state = {
 		// - Home page
 		username: "",
@@ -38,6 +37,7 @@ class Main extends Component {
 		currentLocation: null,
 		potentialLocation: null,
 		map: null,
+		mapErrMessage: null,
 		mapMessage: null,
 		mapCenter: null,
 		zoom: 14,
@@ -69,12 +69,15 @@ class Main extends Component {
 		overlayBackground.style.display = (overlayInput.optionsDisplay) ? "inline-block" : "none";
 		overlay.style.display = (overlayInput.optionsDisplay) ? "inline-block" : "none";
 
+		overlayInput.mapErrMessage = "";
+		overlayInput.mapMessage = "";
+
 		this.setState(overlayInput);
 	};
 
 
 
-//  ----- Home-specific fucntions
+	//  ----- Home-specific fucntions
 	handleNewUser = event => {
 		event.preventDefault();
 		const newUserOldValue = this.state.createNewUser;
@@ -85,7 +88,7 @@ class Main extends Component {
 			optionsDisplay: true
 		};
 
-		if(newUserOldValue !== value) {
+		if (newUserOldValue !== value) {
 			stateObj.username = "";
 			stateObj.password = "";
 			stateObj.retype = "";
@@ -98,8 +101,8 @@ class Main extends Component {
 	handleGroupSubmit = event => {
 		event.preventDefault();
 
-		if(!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
-			this.setState({ message: "Please fill in all fields"});
+		if (!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
+			this.setState({ message: "Please fill in all fields" });
 		}
 		else if (this.state.createNewUser && this.state.password !== this.state.retype) {
 			this.setState({
@@ -122,7 +125,7 @@ class Main extends Component {
 			isJoining: this.state.isJoining
 		};
 
-		if(this.state.createNewUser) {
+		if (this.state.createNewUser) {
 			apiCall = API.signup;
 		}
 		else {
@@ -130,7 +133,6 @@ class Main extends Component {
 		}
 
 		apiCall(apiObj).then(res => {
-			console.log('res.data', res.data);
 			res.data.message = "";
 			res.data.showResultsPage = true;
 			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
@@ -140,7 +142,7 @@ class Main extends Component {
 			console.log('err', err);
 			let stateObj;
 
-			switch(err.response.status) {
+			switch (err.response.status) {
 				case 422:
 					stateObj = {
 						message: "That Screen Name is already taken :(",
@@ -164,7 +166,7 @@ class Main extends Component {
 					break;
 			}
 
-			if(stateObj.message) {
+			if (stateObj.message) {
 				this.setState(stateObj);
 			}
 		});
@@ -172,7 +174,7 @@ class Main extends Component {
 
 
 
-//  ----- Results-specific functions
+	//  ----- Results-specific functions
 	updateMapObject = value => {
 		this.setState({ map: value }, this.loadFirebase);
 	};
@@ -184,64 +186,54 @@ class Main extends Component {
 	loadFirebase = () => {
 		//  -- Center listener
 		firebase.database().ref('group/' + this.state.groupNum + '/center').on('value', snapshot => {
-			if(snapshot.val()) {
-				const latLng = {
-					lat: snapshot.val().latAvg,
-					lng: snapshot.val().lngAvg
-				};
+			if (snapshot.val()) {
+				const googleResults = snapshot.val().googleResults || [];
+				const { avgLatLng } = snapshot.val();
+
 				const stateObj = {
 					waitingForResponse: false,
-					groupCenter: latLng,
-					votedFor: null,
-					votesAll: {},
-					zoom: 14,
-					votesAllArr: [],
-					placeInfo: [],
-					nearbyArr: [],
-					placeKey: null,
-					mapMessage: "Group Center Changed"
-				};
-				const request = {
-					location: latLng,
-					radius: 500,
-					type: ['cafe']
+					nearbyArr: googleResults,
+					mapErrMessage: "",
+					mapMessage: ""
 				};
 
-				if(this.state.locationSubmitted === true) {
+				if (this.state.neverSubmitted) {
+					stateObj.groupCenter = avgLatLng;
+				}
+				else if (!this.state.groupCenter) {
+					stateObj.groupCenter = avgLatLng;
 					stateObj.zoom = 16;
-					
-					const service = new google.maps.places.PlacesService(this.state.map.context.__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED);
-					service.nearbySearch(request, (results, status) => {
-						if (status === google.maps.places.PlacesServiceStatus.OK) {
-							const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-							let labelIndex = 0;
-
-							const letteredResults = results.map(place => {
-								place.letter = labels[labelIndex];
-								labelIndex = (labelIndex >= labels.length - 1) ? 0 : labelIndex + 1;
-								return place;
-							});
-
-							stateObj.nearbyArr = letteredResults;
-							stateObj.mapMessage = "";
-						}
-						else {
-							stateObj.nearbyArr = [];
-							stateObj.mapMessage = "No places found.  Please submit a new location or wait for others to join";
-						}
-
-						this.setState(stateObj, () => {setTimeout(() => this.setState({ mapMessage: "" }), 2500)});
-					});
 				}
-				else {
-					this.setState(stateObj, () => {setTimeout(() => this.setState({ mapMessage: "" }), 2500)});
+				else if (this.state.groupCenter.lat !== snapshot.val().avgLatLng.lat || this.state.groupCenter.lng !== snapshot.val().avgLatLng.lng) {
+					stateObj.groupCenter = avgLatLng;
+					stateObj.votedFor = null;
+					stateObj.votesAll = {};
+					stateObj.zoom = 14;
+					stateObj.votesAllArr = [];
+					stateObj.placeInfo = [];
+					stateObj.placeKey = null;
+					stateObj.mapMessage = "Group Center Changed";
+
+					if (this.state.locationSubmitted) {
+						stateObj.zoom = 16;
+					}
 				}
+				else if (this.state.waitingForResponse) {
+					stateObj.zoom = 16;
+					stateObj.mapMessage = "New location submitted, but center didn't change.";
+				}
+
+				if (!googleResults.length) {
+					stateObj.mapErrMessage = "No places found.  Please submit a new location or wait for others to join";
+				}
+
+				this.setState(stateObj, () => { setTimeout(() => this.setState({ mapMessage: "" }), 3000) });
 			}
 		});
 
 		//  -- Votes listener
 		firebase.database().ref('group/' + this.state.groupNum + '/votes').on('value', snapshot => {
-			if(snapshot.val()) {
+			if (snapshot.val()) {
 				const votesAllArr = [];
 				for (const place in snapshot.val()) {
 					const newObj = {
@@ -260,17 +252,17 @@ class Main extends Component {
 
 		//  -- Online listener
 		firebase.database().ref('group/' + this.state.groupNum + '/online').on('value', snapshot => {
-			if(snapshot.val()) {
+			if (snapshot.val()) {
 				const stateObj = {};
 				const onlineArr = [];
-				for(const item in snapshot.val()){
+				for (const item in snapshot.val()) {
 					if (this.state.firebaseKey === null && snapshot.val()[item] === this.state.username) {
 						stateObj.firebaseKey = item;
 					}
 					onlineArr.push(snapshot.val()[item]);
 				}
 				stateObj.onlineArr = onlineArr;
-				this.setState(stateObj, () => console.log(stateObj));
+				this.setState(stateObj);
 			}
 		});
 	};
@@ -304,7 +296,7 @@ class Main extends Component {
 				votesAll[prevVote]--;
 			}
 			votesAll[thisVote] = votesAll[thisVote] ? votesAll[thisVote] + 1 : 1;
-			
+
 			const stateObj = {
 				votedFor: thisVote,
 				votesAll: votesAll
@@ -319,15 +311,15 @@ class Main extends Component {
 
 	handleCenterChanged = latLng => {
 		let stateObj = { mapCenter: latLng };
-		if (!this.state.locationSubmitted){
+		if (!this.state.locationSubmitted) {
 			stateObj.potentialLocation = latLng;
 		}
 		this.setState(stateObj);
 	}
 
 	handleLocationSubmit = () => {
-		if(!this.state.waitingForResponse) {
-			if(this.state.locationSubmitted) {
+		if (!this.state.waitingForResponse) {
+			if (this.state.locationSubmitted) {
 				this.prepNewLocation();
 			}
 			else {
@@ -368,7 +360,7 @@ class Main extends Component {
 				console.log(res.data);
 				let message;
 
-				if(res.data.success) {
+				if (res.data.success) {
 					message = {
 						message: "Location submitted successfully"
 					};
@@ -376,12 +368,12 @@ class Main extends Component {
 				else {
 					message = { message: "Something went wrong" };
 				}
-				
+
 				this.setState(message, () => {
 					setTimeout(() => this.setState({ message: "" }), 2500);
 					setTimeout(() => {
-						if(this.state.waitingForResponse) {
-							this.setState({ mapMessage: "Google's slow sometimes, just give it a sec :)" }, () => setTimeout(() => this.setState({ mapMessage: "" }), 5000));
+						if (this.state.waitingForResponse) {
+							this.setState({ mapErrMessage: "Google's slow sometimes, just give it a sec :)" });
 						}
 					}, 1750);
 				});
@@ -402,15 +394,15 @@ class Main extends Component {
 
 	handleLogout = event => {
 		event.preventDefault();
-		if(this.state.showResultsPage){
+		if (this.state.showResultsPage) {
 			const allVotes = this.state.votesAll;
-			for(const p in allVotes) {
+			for (const p in allVotes) {
 				if (allVotes[p] === this.state.votedFor) {
 					allVotes[p]--;
 				}
 			}
 			firebase.database().ref('group/' + this.state.groupNum + '/votes').set(allVotes);
-	
+
 			API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId).then(res => {
 				this.setState({
 					username: "",
@@ -453,7 +445,7 @@ class Main extends Component {
 	componentDidMount() {
 		if (this.state.isJoining) {
 			API.checkGroup(this.state.groupNum).then(res => {
-				if(!res.data) {
+				if (!res.data) {
 					window.location.href = window.location.origin + "/fourohfour";
 				}
 			}).catch(err => console.log("err: ", err));
@@ -465,25 +457,25 @@ class Main extends Component {
 		window.removeEventListener("beforeunload", this.handleLogout)
 	}
 
-	
+
 
 	//  Current Location stuff
 	success = pos => {
 		const locObj = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-		if(pos.coords.latitude < 28 || pos.coords.latitude > 32) {
+		if (pos.coords.latitude < 28 || pos.coords.latitude > 32) {
 			locObj.lat = 30.2672;
 		}
-		if(pos.coords.longitude < -99 || pos.coords.longitude > -95) {
+		if (pos.coords.longitude < -99 || pos.coords.longitude > -95) {
 			locObj.lng = -97.7431;
 		}
-		
+
 		this.setState({
 			currentLocation: locObj,
 			potentialLocation: locObj,
 			mapCenter: locObj
 		});
 	};
-	  
+
 	error = err => console.warn(`ERROR(${err.code}): ${err.message}`);
 
 	getUserLocation = () => {
@@ -522,13 +514,15 @@ class Main extends Component {
 			handleOverlay: this.handleOverlay,
 			handleLogout: this.handleLogout
 		};
-		
+
 		return (
 			<div className="main-container">
-				{ this.state.showResultsPage ? <Results {...resultsProps} /> : <Home {...homeProps} /> }
+				{this.state.showResultsPage ? <Results {...resultsProps} /> : <Home {...homeProps} />}
 			</div>
 		);
 	};
 }
 
 export default Main;
+
+//asdfasdf

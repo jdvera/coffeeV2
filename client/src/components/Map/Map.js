@@ -35,7 +35,7 @@ class Map extends Component {
                 defaultOptions={mapOptions}
             >
                 {/* User's location */}
-                <Marker 
+                <Marker
                     position={this.props.state.potentialLocation}
                     icon={{ url: 'https://mt.google.com/vt/icon/psize=16&font=fonts/arialuni_t.ttf&name=icons/spotlight/spotlight-waypoint-a.png&ax=44&ay=48&scale=1' }}
                 />
@@ -47,7 +47,7 @@ class Map extends Component {
                         icon={{ url: window.location.origin + "/images/blue_pin.png", scaledSize: new google.maps.Size(28, 46) }}
                     />
                 }
-                
+
                 {/* Result locations */}
                 {(this.props.state.nearbyArr.length > 0 && !this.props.state.neverSubmitted) &&
                     this.props.state.nearbyArr.map((place, index) => {

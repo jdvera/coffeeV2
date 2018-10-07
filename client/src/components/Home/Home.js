@@ -4,9 +4,9 @@ import GroupForm from "../GroupForm";
 
 class Home extends Component {
 
-   componentDidMount = () => {
-      this.props.getUserLocation();
-   }
+	componentDidMount = () => {
+		this.props.getUserLocation();
+	}
 
 	render() {
 		return (
@@ -25,19 +25,19 @@ class Home extends Component {
 				</div>
 
 				<p id="gen-text-1">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>
-				
+
 				<div className="row">
 					<button value="true" onClick={this.props.handleNewUser}>new user</button>
 				</div>
-				
+
 				<div className="row">
 					<button value="false" onClick={this.props.handleNewUser}>login</button>
 				</div>
 
-				{this.props.state.isJoining ? <p id="gen-text-2">or <a href="/">create a new group</a></p> : <p id="gen-text-2">to join an existing group, use the url provided to the one who made it</p>}	
+				{this.props.state.isJoining ? <p id="gen-text-2">or <a href="/">create a new group</a></p> : <p id="gen-text-2">to join an existing group, use the url provided to the one who made it</p>}
 
-				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} />
-				
+				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} handleOverlay={this.props.handleOverlay} />
+
 				<div id="overlay-background" onClick={() => this.props.handleOverlay({ optionsDisplay: false })}></div>
 			</div>
 		);

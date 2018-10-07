@@ -23,6 +23,10 @@ html, body, #root, .main-container {
   background-color: transparent;
 }
 
+p {
+  text-align: center;
+}
+
 .row {
   text-align: center;
   margin-left: 0px;

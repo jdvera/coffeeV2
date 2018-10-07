@@ -18,15 +18,16 @@
     z-index: 100;
 }
 
-#fourth-button {
-    grid-column-start: 4;
-    grid-column-end: 5;
-    z-index: 100;
-}
-
-#url-button, #logout-button {
+#url-button, #help-button, #logout-button {
     width: 100%;
     max-width: 180px;
+}
+
+#instructions {
+    padding: 5px 15px;
+}
+#steps li {
+    padding-top: 10px;
 }
 
 #info-container, #people-container {
@@ -83,19 +84,21 @@
     padding-left: 5px;
 }
 
-#arrow {
-    position: absolute;
-    top: 10px;
-    left: 5px;
-    padding: 10px;
+#arrow, #empty-arrow {
+    float: left;
+    padding: 20px 10px 10px 15px;
     cursor: pointer;
 }
 
+#empty-arrow {
+    box-sizing: content-box;
+    height: 13.6px;
+    width: 9.625px;
+}
+
 #times {
-    position: absolute;
-    top: 10px;
-    right: 5px;
-    padding: 10px;
+    float: right;
+    padding: 20px 15px 10px 10px;
     cursor: pointer;
 }
 
