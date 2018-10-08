@@ -8,10 +8,6 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false
     },
-    isCreator: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
     lat: DataTypes.FLOAT,
     lng: DataTypes.FLOAT,
   });

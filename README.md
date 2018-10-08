@@ -4,7 +4,7 @@
 Note - For the app to work as intended, it will need access to the user's current location.  **This location is not permanently stored anywhere, and is only used to define the map's starting center**
 
 To use the app: 
-- One person in the group will need to go to the [homepage](https://whispering-peak-26762.herokuapp.com/)
+- One person in the group will need to go to the [homepage](https://coffee-connect.herokuapp.com/)
 - They can create a new account, or login if they have visited before
     - Either way, a new group will be created with a unique Group Number
     - Accounts are not associated with a specific group, so the same login credentails can be used to create/join multiple groups
@@ -38,6 +38,6 @@ To use the app:
 
 
 ## Calculating Group's Center Location
-All users' locations are saved as a latitude/longitute pair.  When a user submits a new location, the database is updated with that lat/lng.  Then, the lat/lngs of all users in that group are collected, and the minimums and maximums are calculated.  Finally, the midpoint between the two extremes are calculated and saved as the group's center lat/lng.
+Each member's location is saved as a latitude/longitute pair.  When a new location is submitted, the database is updated with that lat/lng.  Then, the lat/lngs of all users in the group are collected, and the minimums and maximums are calculated.  Finally, the midpoint between the two extremes are calculated and saved as the group's center lat/lng.
 
-You can think of it like the group is inside a rectangle, with the Group's Center being the center of the rectangle.  If a user submits a location outside the rectangle, the rectangle gets bigger to include that user, and the center of this new rectangle is used as the Group's Center.
+You can think of it like the group is inside a rectangle, with the Group's Center being the center of the rectangle.  If a user submits a location that falls outside the rectangle, the rectangle gets bigger to include that location, and the center of this larger rectangle is used as the Group's Center.

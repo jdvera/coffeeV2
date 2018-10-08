@@ -11,7 +11,7 @@ var db = require("./models");
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static("public"));
+// app.use(express.static("public"));
 // We need to use sessions to keep track of our user's login status
 app.use(session({ secret: "keyboard cat", resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
@@ -31,20 +31,17 @@ db.sequelize.sync({ force: true }).then(function () {
   app.listen(PORT, function () {
     db.Users.create({ username: "asdf", password: "asdf" }).then(function () {
       console.log("test user 'asdf' created");
-      db.Groups.create({ groupNum: "1234" }).then(function () {
-        console.log("test group '1234' created");
-        var fbdb = firebase.database();
-        fbdb.ref("group").once("value").then(function (snapshot) {
-          console.log(" ----------- checking for groups ----------- ");
-          for(var key in snapshot.val()){
-            console.log(" -------- deleting " + key + " -------- ");
-            fbdb.ref("group/" + key).remove();
-          }
-          console.log("");
-          console.log(" ------------------------------------------- ");
-          console.log(" ---------- END OF SERVER STARTUP ---------- ");
-          console.log(" ------------------------------------------- ");
-        });
+      var fbdb = firebase.database();
+      fbdb.ref("group").once("value").then(function (snapshot) {
+        console.log(" ----------- checking for groups ----------- ");
+        for (var key in snapshot.val()) {
+          console.log(" -------- deleting " + key + " -------- ");
+          fbdb.ref("group/" + key).remove();
+        }
+        console.log("");
+        console.log(" ------------------------------------------- ");
+        console.log(" ---------- END OF SERVER STARTUP ---------- ");
+        console.log(" ------------------------------------------- ");
       });
     });
   });

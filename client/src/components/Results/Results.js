@@ -92,7 +92,6 @@ class Results extends Component {
 					<Map
 						state={this.props.state}
 						handleCenterChanged={this.props.handleCenterChanged}
-						loadFirebase={this.props.loadFirebase}
 						updateMapObject={this.props.updateMapObject}
 						showPlaceInfo={this.props.showPlaceInfo}
 						loadingElement={<div style={{ height: `100%` }} />}

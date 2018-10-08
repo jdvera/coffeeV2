@@ -1,15 +1,15 @@
 {
   "name": "coffeeConnect",
-  "homepage": "https://whispering-peak-26762.herokuapp.com/",
+  "homepage": "https://coffee-connect.herokuapp.com/",
   "version": "1.0.0",
   "description": "**Coffee Connect** is a mobile-first app designed to help remote teams communicate and find nearby coffee shops and cafes where they can connect and get work done. Using the power of Google Maps API, Coffee Connect identifies venues that are conveniently located, displays business hours and other info, and shows the most convenient routes to get there. This project utilizes Passport, Express, Sequelize and BCrypt on the back end, Firebase and MySQL for database support, and CSS3 and Bootstrap a lightweight responsive front end design.",
   "main": "server.js",
   "scripts": {
     "server": "node server.js",
-    "client": "node scripts/start-client.js",
-    "start": "concurrently \"nodemon server.js\" \"npm run client\"",
-    "build": "node scripts/build.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "client": "cd client && npm run start",
+    "start": "concurrently \"nodemon server.js --config nodemon.json\" \"npm run client\"",
+    "build": "cd client && npm run build",
+    "heroku-postbuild": "npm run build"
   },
   "repository": {
     "type": "git",

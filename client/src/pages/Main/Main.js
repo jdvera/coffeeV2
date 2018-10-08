@@ -6,10 +6,12 @@ import Home from "../../components/Home";
 import Results from "../../components/Results";
 
 /* 
+
 	---------  THINGS TO DO ---------
-	- make "group center changed" message appear consistantly
+	- make "show url" button instead copy the url to clipboard
 	- guarantee group nums are unique
 	- dropdown for user's to change what type of results appear (cafes, bars, etc.)
+
 */
 
 class Main extends Component {
@@ -26,7 +28,6 @@ class Main extends Component {
 		showResultsPage: false,
 		userId: null,
 		userGroupId: null,
-		isCreator: null,
 
 		// - Results page
 		firebaseKey: null,
@@ -77,7 +78,7 @@ class Main extends Component {
 
 
 
-	//  ----- Home-specific fucntions
+	//  ----- Home functions
 	handleNewUser = event => {
 		event.preventDefault();
 		const newUserOldValue = this.state.createNewUser;
@@ -135,7 +136,7 @@ class Main extends Component {
 		apiCall(apiObj).then(res => {
 			res.data.message = "";
 			res.data.showResultsPage = true;
-			res.data.url = window.location.origin + "/join/" + res.data.groupNum;
+			res.data.url = `${window.location.origin}/join/${res.data.groupNum}`;
 			res.data.optionsDisplay = "url";
 			this.handleOverlay(res.data);
 		}).catch(err => {
@@ -162,7 +163,7 @@ class Main extends Component {
 					}
 					break;
 				default:
-					window.location.href = window.location.origin + "/fourohfour";
+					window.location.href = `${window.location.origin}/fourohfour`;
 					break;
 			}
 
@@ -174,7 +175,7 @@ class Main extends Component {
 
 
 
-	//  ----- Results-specific functions
+	//  ----- Results functions
 	updateMapObject = value => {
 		this.setState({ map: value }, this.loadFirebase);
 	};
@@ -185,7 +186,7 @@ class Main extends Component {
 
 	loadFirebase = () => {
 		//  -- Center listener
-		firebase.database().ref('group/' + this.state.groupNum + '/center').on('value', snapshot => {
+		firebase.database().ref(`group/${this.state.groupNum}/center`).on('value', snapshot => {
 			if (snapshot.val()) {
 				const googleResults = snapshot.val().googleResults || [];
 				const { avgLatLng } = snapshot.val();
@@ -232,7 +233,7 @@ class Main extends Component {
 		});
 
 		//  -- Votes listener
-		firebase.database().ref('group/' + this.state.groupNum + '/votes').on('value', snapshot => {
+		firebase.database().ref(`group/${this.state.groupNum}/votes`).on('value', snapshot => {
 			if (snapshot.val()) {
 				const votesAllArr = [];
 				for (const place in snapshot.val()) {
@@ -251,17 +252,17 @@ class Main extends Component {
 		});
 
 		//  -- Online listener
-		firebase.database().ref('group/' + this.state.groupNum + '/online').on('value', snapshot => {
+		firebase.database().ref(`group/${this.state.groupNum}/online`).on('value', snapshot => {
 			if (snapshot.val()) {
-				const stateObj = {};
-				const onlineArr = [];
+				const stateObj = {
+					onlineArr: []
+				};
 				for (const item in snapshot.val()) {
-					if (this.state.firebaseKey === null && snapshot.val()[item] === this.state.username) {
+					if (!this.state.firebaseKey && snapshot.val()[item] === this.state.username) {
 						stateObj.firebaseKey = item;
 					}
-					onlineArr.push(snapshot.val()[item]);
+					stateObj.onlineArr.push(snapshot.val()[item]);
 				}
-				stateObj.onlineArr = onlineArr;
 				this.setState(stateObj);
 			}
 		});
@@ -275,15 +276,16 @@ class Main extends Component {
 			: {
 				lat: this.state.currentLocation.lat(),
 				lng: this.state.currentLocation.lng()
-			}
+			};
 
-		let stateArr = [null, null, null, null];
-		stateArr[0] = "Name: " + thisPlace.name;
-		stateArr[1] = "Open Now: " + (thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown");
-		stateArr[2] = "Rating: " + (thisPlace.rating || "Unknown");
-		stateArr[3] = `https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`;
+		const placeInfo = [
+			`Name: ${thisPlace.name}`,
+			`Open Now: ${thisPlace.opening_hours ? (thisPlace.opening_hours.open_now ? "Yes!" : "No...") : "Unknown"}`,
+			`Rating: ${thisPlace.rating || "Unknown"}`,
+			`https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`
+		];
 
-		this.setState({ placeKey: placeKey, placeInfo: stateArr });
+		this.setState({ placeKey, placeInfo });
 	}
 
 	handleVote = event => {
@@ -303,14 +305,14 @@ class Main extends Component {
 			};
 
 			this.setState(stateObj, () => {
-				firebase.database().ref('group/' + this.state.groupNum + '/votes').set(votesAll);
+				firebase.database().ref(`group/${this.state.groupNum}/votes`).set(votesAll);
 			})
 
 		}
 	}
 
 	handleCenterChanged = latLng => {
-		let stateObj = { mapCenter: latLng };
+		const stateObj = { mapCenter: latLng };
 		if (!this.state.locationSubmitted) {
 			stateObj.potentialLocation = latLng;
 		}
@@ -357,9 +359,7 @@ class Main extends Component {
 			};
 
 			API.updateLocation(apiObj).then(res => {
-				console.log(res.data);
 				let message;
-
 				if (res.data.success) {
 					message = {
 						message: "Location submitted successfully"
@@ -410,11 +410,11 @@ class Main extends Component {
 					retype: "",
 					createNewUser: false,
 					message: "",
-					groupNum: window.location.pathname.split("/")[2] || null,
 					isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
+					groupNum: window.location.pathname.split("/")[2] || null,
 					showResultsPage: false,
+					userId: null,
 					userGroupId: null,
-					isCreator: null,
 					firebaseKey: null,
 					onlineArr: [],
 					optionsDisplay: null,
@@ -423,6 +423,7 @@ class Main extends Component {
 					currentLocation: null,
 					potentialLocation: null,
 					map: null,
+					mapErrMessage: null,
 					mapMessage: null,
 					mapCenter: null,
 					zoom: 14,
@@ -444,11 +445,12 @@ class Main extends Component {
 
 	componentDidMount() {
 		if (this.state.isJoining) {
-			API.checkGroup(this.state.groupNum).then(res => {
-				if (!res.data) {
+			firebase.database().ref(`group/${this.state.groupNum}`).once("value").then(snapshot => {
+				console.log("snapshot:", snapshot.val());
+				if (!snapshot.val()) {
 					window.location.href = window.location.origin + "/fourohfour";
 				}
-			}).catch(err => console.log("err: ", err));
+			});
 		}
 		window.addEventListener("beforeunload", this.handleLogout);
 	}
@@ -462,12 +464,14 @@ class Main extends Component {
 	//  Current Location stuff
 	success = pos => {
 		const locObj = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-		if (pos.coords.latitude < 28 || pos.coords.latitude > 32) {
-			locObj.lat = 30.2672;
-		}
-		if (pos.coords.longitude < -99 || pos.coords.longitude > -95) {
-			locObj.lng = -97.7431;
-		}
+
+		// -----  Was using this when navigator api was putting me in TN -----
+		// if (pos.coords.latitude < 28 || pos.coords.latitude > 32) {
+		// 	locObj.lat = 30.2672;
+		// }
+		// if (pos.coords.longitude < -99 || pos.coords.longitude > -95) {
+		// 	locObj.lng = -97.7431;
+		// }
 
 		this.setState({
 			currentLocation: locObj,
@@ -502,12 +506,10 @@ class Main extends Component {
 		};
 		const resultsProps = {
 			state: this.state,
-			handleInputChange: this.handleInputChange,
 			handleClipboard: this.handleClipboard,
 			showPlaceInfo: this.showPlaceInfo,
 			updateMapObject: this.updateMapObject,
 			handleCenterChanged: this.handleCenterChanged,
-			loadFirebase: this.loadFirebase,
 			handleLocationSubmit: this.handleLocationSubmit,
 			handleCancelLocation: this.handleCancelLocation,
 			handleVote: this.handleVote,
@@ -524,5 +526,3 @@ class Main extends Component {
 }
 
 export default Main;
-
-//asdfasdf
