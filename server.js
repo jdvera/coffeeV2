@@ -30,6 +30,12 @@ else {
 // Requiring our routes
 require("./routes/api-routes.js")(app);
 
+if (process.env.NODE_ENV === "production") {
+  app.get("*", function(req, res) {
+    res.sendFile(path.join(__dirname, "./client/build/index.html"));
+  });
+}
+
 // Syncing our database and logging a message to the user upon success
 db.sequelize.sync({ force: true }).then(function () {
   app.listen(PORT, function () {
