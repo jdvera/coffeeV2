@@ -1,15 +1,16 @@
 require("dotenv").config();
-var express = require("express");
-var bodyParser = require("body-parser");
-var session = require("express-session");
-var passport = require("./config/passport");
-var firebase = require("./config/firebase");
+const express = require("express");
+const bodyParser = require("body-parser");
+const session = require("express-session");
+const passport = require("./config/passport");
+const firebase = require("./config/firebase");
+const path = require("path");
 
-var PORT = process.env.PORT || 3010;
-var db = require("./models");
+const PORT = process.env.PORT || 3010;
+const db = require("./models");
 
 // Creating express app and configuring middleware needed for authentication
-var app = express();
+const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 // app.use(express.static("public"));
@@ -31,21 +32,21 @@ else {
 require("./routes/api-routes.js")(app);
 
 if (process.env.NODE_ENV === "production") {
-  app.get("*", function(req, res) {
+  app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "./client/build/index.html"));
   });
 }
 
 // Syncing our database and logging a message to the user upon success
-db.sequelize.sync({ force: true }).then(function () {
-  app.listen(PORT, function () {
-    db.Users.create({ username: "asdf", password: "asdf" }).then(function () {
+db.sequelize.sync({ force: true }).then(() => {
+  app.listen(PORT, () => {
+    db.Users.create({ username: "asdf", password: "asdf" }).then(() => {
       console.log("test user 'asdf' created");
       var fbdb = firebase.database();
-      fbdb.ref("group").once("value").then(function (snapshot) {
+      fbdb.ref("group").once("value").then((snapshot) => {
         console.log(" ----------- checking for groups ----------- ");
         for (var key in snapshot.val()) {
-          console.log(" -------- deleting " + key + " -------- ");
+          console.log(` -------- deleting ${key} -------- `);
           fbdb.ref("group/" + key).remove();
         }
         console.log("");
