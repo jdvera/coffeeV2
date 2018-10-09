@@ -45,4 +45,8 @@ button:focus {
     .main-container, .error-container {
         width: 90%;
     }
+
+    .gm-control-active:hover {
+        box-shadow: none;
+    }
 }

@@ -8,6 +8,7 @@ import Results from "../../components/Results";
 /* 
 
 	---------  THINGS TO DO ---------
+	- ask about help modal on mobile
 	- make votes part of the online obj to fix these two issues
 		- preserve votes if the center doesn't move far
 		- if two people vote at the same time, both votes should be recorded
@@ -522,7 +523,6 @@ class Main extends Component {
 
 		navigator.geolocation.getCurrentPosition(this.success, this.error, options);
 	};
-
 
 
 
