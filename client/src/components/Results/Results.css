@@ -1,21 +1,24 @@
-* {
-    font-family: 'Roboto', sans-serif;
-}
-
-#top-buttons {
+.results-container {
     display: grid;
-    grid-template-columns: 25% 25% 25% 25%;
+    height:100%;
+    min-height: 650px;
+    overflow: auto;
+    position: relative;
+}
+  
+/* OPTIONS MODAL */
+#options-button {
     position: absolute;
-    padding: 20px 20px 0px 20px;
-    text-align: center;
-    width: 100%;
-    font-size: 10px;
+    top: 7px;
+    left: 7px;
+    z-index: 1;
+    width: 25%;
+    min-width: 100px;
 }
 
-#first-button {
-    grid-column-start: 1;
-    grid-column-end: 2;
-    z-index: 100;
+.help-container {
+    width: 80% !important;
+    left: 10% !important;
 }
 
 #url-button, #help-button, #logout-button {
@@ -31,8 +34,12 @@
     padding-top: 10px;
 }
 
-.info-box {
-    text-align: center;
+/* MAP */
+#map {
+    height: 500px;
+}
+
+.map-bubble {
     padding: 8px;
     font-size: 16px;
     color: black;
@@ -53,10 +60,12 @@
 }
 
 #people-container {
+    text-align: center;
     overflow: auto;
 }
 
 #info-container {
+    text-align: center;
     min-height: 150px;
     border-width: 2px;
     border-style: solid;
@@ -69,7 +78,11 @@
 }
 
 #logout-button {
-    background: #ff0000 ;
+    background: #ff0000;
+    margin-bottom: 15px;
+}
+#logout-button:hover {
+    box-shadow: inset 0 0 0 5px #FC9700;
 }
 
 #online {
@@ -89,39 +102,22 @@
 }
 
 
-#logout-button:hover {
-    box-shadow: inset 0 0 0 5px #FC9700;
-}
-
-#clipboard {
-    padding-left: 5px;
-}
-
-#arrow, #empty-arrow {
-    float: left;
-    padding: 20px 10px 10px 15px;
-    cursor: pointer;
-}
-
-#empty-arrow {
-    box-sizing: content-box;
-    height: 13.6px;
-    width: 9.625px;
-}
-
-#times {
-    float: right;
-    padding: 20px 15px 10px 10px;
-    cursor: pointer;
-}
 
 
-@media only screen and (max-width: 480px) {
-    #url-button, #logout-button {
+@media only screen and (max-width: 520px) {
+    #options-button, #url-button, #help-button, #logout-button {
         font-size: 13px;
-        padding: 5px 0px;
+        padding-top: 3px;
     }
-    
+
+    .help-container {
+        font-size: 13px;
+    }
+
+    #map {
+        height: 250px;
+    }
+
     #info-container, #people-container {
         width: 100%;
         padding-top: 0px;

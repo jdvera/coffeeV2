@@ -15,16 +15,18 @@ class Home extends Component {
 					{/* intentionally left blank */}
 				</div>
 
-				<div className="row">
+				<div className="row logo">
 					<img src={window.location.origin + "/images/coffeelogoMed.png"} alt="logo" id="img-style" />
 				</div>
 
 				<div className="row">
-					<div className="" id="font-style">coffee</div>
-					<div className="" id="font-style-2">connect</div>
+					<div id="font-style-1">coffee</div>
+					<div id="font-style-2">connect</div>
 				</div>
 
-				<p id="gen-text-1">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>
+				<div className="row">
+					<p id="gen-text">{this.props.state.isJoining ? "join the group!" : "create a new group"}</p>
+				</div>
 
 				<div className="row">
 					<button value="true" onClick={this.props.handleNewUser}>new user</button>
@@ -34,11 +36,11 @@ class Home extends Component {
 					<button value="false" onClick={this.props.handleNewUser}>login</button>
 				</div>
 
-				{this.props.state.isJoining ? <p id="gen-text-2">or <a href="/">create a new group</a></p> : <p id="gen-text-2">to join an existing group, use the url provided to the one who made it</p>}
+				<div className="row">
+					{this.props.state.isJoining ? <p>or <a href="/">create a new group</a></p> : <p>to join an existing group, use the url provided to the one who made it</p>}
+				</div>
 
 				<GroupForm state={this.props.state} handleGroupSubmit={this.props.handleGroupSubmit} handleInputChange={this.props.handleInputChange} handleOverlay={this.props.handleOverlay} />
-
-				<div id="overlay-background" onClick={() => this.props.handleOverlay({ optionsDisplay: false })}></div>
 			</div>
 		);
 	}

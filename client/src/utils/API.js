@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export default {
-
     signup: userData => {
         console.log("Axios createGroupNewUser");
         return axios.post(`/api/signup`, userData);

@@ -1,111 +1,48 @@
 /* BASIC ARCHITECTURE STYLE */
-html, body, #root, .main-container {
-  height: 100%;
-}
 
-.home-container, .results-container, .error-container {
-  display: grid;
-  margin: auto;
-  padding: 20px;
-  height:100%;
-  min-height: 650px;
-  width: 95%;
-  max-width: 500px;
-  border-width: 3px;
-  border-style: solid;
-  border-color: #003366;
-  border-radius: 25px;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  background-color: transparent;
-}
 
-p {
-  text-align: center;
+html, body, #root {
+    height: 100%;
 }
 
 .row {
-  text-align: center;
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
-form {
-  font-family: 'Oswald', sans-serif;
-}
-
-#users-online {
-  padding: 5px;
-  background-color: #ffffff;
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  border-radius: 15px;
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
 ::-webkit-scrollbar { 
-  display: none; 
+    display: none; 
 }
 
 /* BUTTON STYLING */
 button {
-  background: #0060C0;
-  text-decoration: none;
-  color: white;
-  height: 40px;
-  max-width: 260px;
-  width: 95%;
-  margin: 4px 2px;
-  border-radius: 25px;
-  padding: 5px 20px;
-  transition: all 0.3s ease 0s;
-  text-align: center;
-  font-family: 'Roboto', sans-serif;
-  font-size: 17px;
+    background: #0060C0;
+    text-decoration: none;
+    color: white;
+    height: 40px;
+    max-width: 260px;
+    width: 95%;
+    border-radius: 25px;
+    transition: all 0.3s ease 0s;
+    font-size: 17px;
 }
-
 button:hover {
-  box-shadow: inset 0 0 0 4px #198CFF;
+    box-shadow: inset 0 0 0 4px #198CFF;
+}
+button:focus {
+    outline: none;
 }
 
 /* STYLING FOR LOGO */
 #img-style {
-  text-align: center;
-  width: 65%;
-  max-width: 290px; 
-}
-
-#font-style {
-font-family: 'Alfa Slab One', cursive;
-margin-bottom: -30px;
-font-size: 82px;
-color: #0060C0;
-}
-
-#font-style-2 {
-font-family: 'Alfa Slab One', cursive;
-font-size: 44px;
-margin-bottom: 10px;
-color: #198CFF;
-}
-
-#font-style-3 {
-  font-family: 'Alfa Slab One', cursive;
-  font-size: 22px;
-  text-align: center;
-  color: #198CFF;
-  opacity: 0.95;
-
+    width: 65%;
+    max-width: 290px; 
+    margin-bottom: -15px;
 }
 
 
-/*  GO FULL WIDTH BELOW 480 PIXELS */
-@media only screen and (max-width: 480px) {
-  .home-container, .results-container, .error-container {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 90%;
-  }
+@media only screen and (max-width: 520px) {
+    .main-container, .error-container {
+        width: 90%;
+    }
 }

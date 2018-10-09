@@ -1,37 +1,81 @@
+.main-container {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    margin: auto;
+    padding: 20px;
+    height:100%;
+    min-height: 650px;
+    width: 95%;
+    max-width: 469px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: #003366;
+    border-radius: 25px;
+    background-color: transparent;
+}
+
+
+/* OVERLAY SETTINGS */
 #overlay {
     display: none;
     position: absolute;
-    left: 20%;
+    left: 17%;
     top: 50px;
-    width: 60%;
-    text-align:center;
+    width: 66%;
+    text-align: center;
     z-index: 1000;
     background:white;
     border-width: 3px;
     border-style: solid;
     border-color: #003366;
     border-radius: 25px;
- }
+    transition: all 0.3s ease 0s;
+}
 
- #overlay-background {
+#overlay-background {
     display: none;
     position: absolute;
     left: 0px;
     top: 0px;
     width:100%;
     height:100%;
-    text-align:center;
     z-index: 999;
     background: black;
     opacity: 0.55;
-    border-radius: 20px;
- }
-
-#gen-text-1, #gen-text-2 {
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
 }
 
-#gen-text-1 {
-    font-size: 26px;
+
+/* MODAL NAV BUTTONS */
+#arrow, #empty-times {
+    float: left;
+    box-sizing: border-box;
+    height: 50px;
+    width: 40px;
+    padding-top: 20px;
+    padding-left: 15px;
+    cursor: pointer;
+}
+
+#empty-times {
+    visibility: hidden;
+}
+
+#times {
+    float: right;
+    box-sizing: border-box;
+    height: 50px;
+    width: 40px;
+    padding-top: 20px;
+    padding-right: 15px;
+    cursor: pointer;
+}
+
+/* MISC */
+#gen-text {
+    font-size: 28px;
+}
+
+
+@media only screen and (max-width: 520px) {
+    
 }

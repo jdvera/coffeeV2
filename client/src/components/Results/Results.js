@@ -2,9 +2,6 @@ import React, { Component } from "react";
 import "./Results.css";
 import Map from "../Map";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { isMobile } from "react-device-detect";
-
-const mapHeight = isMobile ? `250px` : `500px`;
 
 class Results extends Component {
 
@@ -13,18 +10,13 @@ class Results extends Component {
 	}
 
 	render() {
-		let optionsDisplay;
-		const overlay = document.getElementById("overlay");
+		let optionsDisplay = <div id="overlay"></div>;
 
 		switch (this.props.state.optionsDisplay) {
 			case ("options"):
-				if (overlay.style.width !== "60%") {
-					overlay.style.width = "60%";
-					overlay.style.left = "20%";
-				}
 				optionsDisplay =
-					<div>
-						<div id="empty-arrow"></div>
+					<div id="overlay" className="options-container">
+						<i id="empty-times" className="fas fa-times"></i>
 						<i id="times" onClick={() => this.props.handleOverlay({ optionsDisplay: false })} className="fas fa-times"></i>
 						Options<br />
 						<CopyToClipboard text={this.props.state.url} onCopy={this.props.handleClipboard}>
@@ -33,15 +25,12 @@ class Results extends Component {
 						<br />
 						<button id="help-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "help" })}>help</button>
 						<br />
-						<button id="logout-button" onClick={this.props.handleLogout}>Logout</button>
+						<button id="logout-button" onClick={() => this.props.handleOverlay({ optionsDisplay: false, logout: true })}>logout</button>
 					</div>;
 				break;
 			case ("help"):
-				overlay.style.width = "75%";
-				overlay.style.left = "12.5%";
-
 				optionsDisplay =
-					<div>
+					<div id="overlay" className="help-container">
 						<i id="arrow" onClick={() => this.props.handleOverlay({ optionsDisplay: "options" })} className="fas fa-arrow-left"></i>
 						<i id="times" onClick={() => this.props.handleOverlay({ optionsDisplay: false })} className="fas fa-times"></i>
 						<br />
@@ -68,11 +57,7 @@ class Results extends Component {
 
 		return (
 			<div className="results-container">
-				<div id="top-buttons">
-					<div id="first-button">
-						<button id="url-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "options" })}>options</button>
-					</div>
-				</div>
+				<button id="options-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "options" })}>options</button>
 
 				<div className="my-map">
 					<Map
@@ -83,7 +68,7 @@ class Results extends Component {
 						hideInfoWindow={this.props.hideInfoWindow}
 						showPlaceInfo={this.props.showPlaceInfo}
 						loadingElement={<div style={{ height: `100%` }} />}
-						containerElement={<div style={{ height: mapHeight }} />}
+						containerElement={<div id="map" />}
 						mapElement={<div style={{ height: `100%` }} />}
 					/>
 					<p>
@@ -134,12 +119,9 @@ class Results extends Component {
 					{this.props.state.showCancel ? <button name="cancelBtn" onClick={this.props.handleCancelLocation}>Cancel</button> : ""}
 					<p id="message" style={{ visibility: this.props.state.submitMessage ? "visible" : "hidden" }}> {this.props.state.submitMessage} </p>
 				</div>
+				
+				{optionsDisplay}
 
-				<div id="overlay">
-					{optionsDisplay}
-				</div>
-
-				<div id="overlay-background" onClick={() => this.props.handleOverlay({ optionsDisplay: false })}></div>
 			</div>
 		);
 	}

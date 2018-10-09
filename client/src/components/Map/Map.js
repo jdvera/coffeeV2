@@ -23,7 +23,7 @@ class Map extends Component {
         this.props.showInfoWindow(event, index);
     }
 
-    off = event => {
+    unhover = event => {
         this.props.hideInfoWindow(event);
     }
 
@@ -66,7 +66,7 @@ class Map extends Component {
                             label={place.letter}
                             onClick={() => this.returnValue(index)}
                             onMouseOver={event => this.hover(event, index)}
-                            onMouseOut={event => this.off(event)}
+                            onMouseOut={event => this.unhover(event)}
                         />
                     )
                 }
@@ -74,7 +74,7 @@ class Map extends Component {
                 {/* Hovered Info Box */}
                 {typeof this.props.state.hoveredPlaceKey === "number" && !isMobile &&
                     <InfoBox position={this.props.state.hoveredPlaceLocation} options={{ closeBoxURL: "" }} >
-                        <div className="info-box">{this.props.state.nearbyArr[this.props.state.hoveredPlaceKey].name}</div>
+                        <div className="map-bubble">{this.props.state.nearbyArr[this.props.state.hoveredPlaceKey].name}</div>
                     </InfoBox>
                 }
             </GoogleMap>

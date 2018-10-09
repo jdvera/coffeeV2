@@ -1,29 +1,46 @@
-* {
-    font-family: 'Roboto', sans-serif;
+.home-container {
+    display: grid;
+    height:100%;
+    min-height: 650px;
+    overflow: auto;
+    position: relative;
 }
 
-.form-control {
-    margin-top: 8px;
+#font-style-1 {
+    font-family: 'Alfa Slab One', cursive;
+    margin-bottom: -30px;
+    font-size: 82px;
+    color: #0060C0;
 }
 
-#pass-check {
-    margin: "0px 10px 0px 0px"
+#font-style-2 {
+    font-family: 'Alfa Slab One', cursive;
+    font-size: 44px;
+    margin-bottom: 10px;
+    color: #198CFF;
 }
 
-#message {
-    font-size: 10pt;
-    min-height: 55px;
-}
-
-#retype {
-    margin-top: 16px;
+form {
+    font-family: 'Oswald', sans-serif;
 }
 
 .form-group {
     margin-bottom: 30px;
 }
 
-.container:before {
-    content: " ";
-    display: table;
+.form-control {
+    margin-top: 8px;
+}
+
+#retype {
+    margin-top: 16px;
+}
+
+#form-message {
+    font-size: 10pt;
+    min-height: 35px;
+}
+
+#submit-button {
+    margin-bottom: 20px;
 }

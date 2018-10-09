@@ -79,7 +79,11 @@ class Main extends Component {
 		overlayInput.mapMessage = "";
 		overlayInput.copied = false;
 
-		this.setState(overlayInput);
+		this.setState(overlayInput, () => {
+			if(overlayInput.logout) {
+				this.handleLogout();
+			}
+		});
 	};
 
 
@@ -415,8 +419,7 @@ class Main extends Component {
 		});
 	}
 
-	handleLogout = event => {
-		event.preventDefault();
+	handleLogout = () => {
 		if (this.state.showResultsPage) {
 			const allVotes = this.state.votesAll;
 			for (const p in allVotes) {
@@ -550,6 +553,8 @@ class Main extends Component {
 		return (
 			<div className="main-container">
 				{this.state.showResultsPage ? <Results {...resultsProps} /> : <Home {...homeProps} />}
+
+				<div id="overlay-background" onClick={() => this.handleOverlay({ optionsDisplay: false })}></div>
 			</div>
 		);
 	};
