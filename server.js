@@ -1,3 +1,4 @@
+require("dotenv").config();
 var express = require("express");
 var bodyParser = require("body-parser");
 var session = require("express-session");
@@ -21,6 +22,9 @@ app.use(passport.session());
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
+}
+else {
+  app.use(express.static("client/public"));
 }
 
 // Requiring our routes

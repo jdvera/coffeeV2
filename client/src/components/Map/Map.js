@@ -1,6 +1,8 @@
 /*global google*/
 import React, { Component } from "react";
-import { withGoogleMap, GoogleMap, Marker } from "react-google-maps"
+import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+import InfoBox from "react-google-maps/lib/components/addons/InfoBox";
+import { isMobile } from "react-device-detect";
 
 class Map extends Component {
     mapLoaded = map => {
@@ -13,13 +15,20 @@ class Map extends Component {
         this.props.handleCenterChanged(this.props.state.map.getCenter());
     };
 
-    returnValue = key => {
-        this.props.showPlaceInfo(key);
+    returnValue = index => {
+        this.props.showPlaceInfo(index);
+    }
+
+    hover = (event, index) => {
+        this.props.showInfoWindow(event, index);
+    }
+
+    off = event => {
+        this.props.hideInfoWindow(event);
     }
 
     render() {
         const mapOptions = {
-            // fullscreenControl: false,
             streetViewControl: false,
             mapTypeControl: false
         };
@@ -30,7 +39,7 @@ class Map extends Component {
                 defaultZoom={14}
                 zoom={this.props.state.zoom}
                 defaultCenter={this.props.state.currentLocation}
-                center={this.props.state.locationSubmitted ? this.props.state.groupCenter : this.props.state.currentLocation}
+                center={this.props.state.locationSubmitted && !this.props.state.waitingForResponse ? this.props.state.groupCenter : this.props.state.currentLocation}
                 onCenterChanged={this.getCenter.bind(this)}
                 defaultOptions={mapOptions}
             >
@@ -50,9 +59,23 @@ class Map extends Component {
 
                 {/* Result locations */}
                 {(this.props.state.nearbyArr.length > 0 && !this.props.state.neverSubmitted) &&
-                    this.props.state.nearbyArr.map((place, index) => {
-                        return <Marker key={index} position={place.geometry.location} label={place.letter} onClick={() => this.returnValue(index)} />
-                    })
+                    this.props.state.nearbyArr.map((place, index) => 
+                        <Marker
+                            key={index}
+                            position={place.geometry.location}
+                            label={place.letter}
+                            onClick={() => this.returnValue(index)}
+                            onMouseOver={event => this.hover(event, index)}
+                            onMouseOut={event => this.off(event)}
+                        />
+                    )
+                }
+
+                {/* Hovered Info Box */}
+                {typeof this.props.state.hoveredPlaceKey === "number" && !isMobile &&
+                    <InfoBox position={this.props.state.hoveredPlaceLocation} options={{ closeBoxURL: "" }} >
+                        <div className="info-box">{this.props.state.nearbyArr[this.props.state.hoveredPlaceKey].name}</div>
+                    </InfoBox>
                 }
             </GoogleMap>
         );

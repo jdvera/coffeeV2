@@ -26,8 +26,21 @@
 #instructions {
     padding: 5px 15px;
 }
+
 #steps li {
     padding-top: 10px;
+}
+
+.info-box {
+    text-align: center;
+    padding: 8px;
+    font-size: 16px;
+    color: black;
+    background: rgb(255, 255, 255, 0.7);
+    border-width: 2px;
+    border-style: solid;
+    border-color: #003366;
+    border-radius: 10px;
 }
 
 #info-container, #people-container {
@@ -45,10 +58,10 @@
 
 #info-container {
     min-height: 150px;
-    border-width: 3px;
+    border-width: 2px;
     border-style: solid;
     border-color: #003366;
-    border-radius: 25px;
+    border-radius: 20px;
 }
 
 #info-container:after {

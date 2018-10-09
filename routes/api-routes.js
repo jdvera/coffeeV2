@@ -3,7 +3,7 @@ const db = require("../models");
 const passport = require("../config/passport");
 const firebase = require("../config/firebase");
 const google = require('@google/maps').createClient({
-   key: 'AIzaSyA4SIVKpOq6bhYAs-iWZxpSZmWkv2FpcTc'
+   key: process.env.MAPS_KEY
 });
 
 module.exports = app => {
@@ -177,7 +177,7 @@ module.exports = app => {
       let letteredResults = [];
       const request = {
          location: avgLatLng,
-         radius: 500,
+         radius: 450,
          type: 'cafe'
       };
 
@@ -224,3 +224,4 @@ module.exports = app => {
       });
    };
 };
+//asdfasdf

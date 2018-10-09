@@ -9,7 +9,7 @@ const mapHeight = isMobile ? `250px` : `500px`;
 class Results extends Component {
 
 	componentDidMount() {
-		this.props.handleOverlay({ optionsDisplay: "url" });
+		// this.props.handleOverlay({ optionsDisplay: "url" });
 	}
 
 	render() {
@@ -27,27 +27,13 @@ class Results extends Component {
 						<div id="empty-arrow"></div>
 						<i id="times" onClick={() => this.props.handleOverlay({ optionsDisplay: false })} className="fas fa-times"></i>
 						Options<br />
-						<button id="url-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "url" })}>show url</button>
+						<CopyToClipboard text={this.props.state.url} onCopy={this.props.handleClipboard}>
+							<button id="url-button">{this.props.state.copied ? "copied!" : "copy url"}</button>
+						</CopyToClipboard>
 						<br />
 						<button id="help-button" onClick={() => this.props.handleOverlay({ optionsDisplay: "help" })}>help</button>
 						<br />
 						<button id="logout-button" onClick={this.props.handleLogout}>Logout</button>
-					</div>;
-				break;
-			case ("url"):
-				optionsDisplay =
-					<div>
-						<i id="arrow" onClick={() => this.props.handleOverlay({ optionsDisplay: "options" })} className="fas fa-arrow-left"></i>
-						<i id="times" onClick={() => this.props.handleOverlay({ optionsDisplay: false })} className="fas fa-times"></i>
-						<br />
-						<p>Share this link with your friends</p>
-						<CopyToClipboard text={this.props.state.url} onCopy={this.props.handleClipboard}>
-							<a>click here to copy to clipboard<i id="clipboard" className="fas fa-clipboard"></i></a>
-						</CopyToClipboard>
-						<div style={this.props.state.copied ? { visibility: "visible" } : { visibility: "hidden" }}>
-							copied.
-						</div>
-						<br />
 					</div>;
 				break;
 			case ("help"):
@@ -61,7 +47,7 @@ class Results extends Component {
 						<br />
 						<p>Welcome to Coffee Connect!</p>
 						<div id="instructions">
-							<p>To allow your friends to join this group, press the left arrow above and choose "show url".  Copy that url and send it to them!</p>
+							<p>To allow your friends to join this group, press the left arrow above, choose "copy url", and send the link to them!</p>
 							<ul id="steps">
 								<li>Move the map around until the green marker is above the location you'd like to start and press "Submit location"</li>
 								<li>A blue dotted marker will either appear, or move somewhere.  This is the center of everyone in the group</li>
@@ -93,6 +79,8 @@ class Results extends Component {
 						state={this.props.state}
 						handleCenterChanged={this.props.handleCenterChanged}
 						updateMapObject={this.props.updateMapObject}
+						showInfoWindow={this.props.showInfoWindow}
+						hideInfoWindow={this.props.hideInfoWindow}
 						showPlaceInfo={this.props.showPlaceInfo}
 						loadingElement={<div style={{ height: `100%` }} />}
 						containerElement={<div style={{ height: mapHeight }} />}
@@ -142,9 +130,9 @@ class Results extends Component {
 				</div>}
 
 				<div className="row">
-					<button name="locationSubmitted" onClick={this.props.handleLocationSubmit} style={this.props.state.waitingForResponse ? { background: "grey" } : { background: "#0060C0" }}>{this.props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
+					<button name="locationSubmitted" onClick={this.props.handleLocationSubmit} style={{ background: this.props.state.waitingForResponse ? "grey" : "#0060C0" }}>{this.props.state.locationSubmitted ? "Change Location" : "Submit Location"}</button>
 					{this.props.state.showCancel ? <button name="cancelBtn" onClick={this.props.handleCancelLocation}>Cancel</button> : ""}
-					<p id="message" style={this.props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {this.props.state.message} </p>
+					<p id="message" style={{ visibility: this.props.state.submitMessage ? "visible" : "hidden" }}> {this.props.state.submitMessage} </p>
 				</div>
 
 				<div id="overlay">

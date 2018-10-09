@@ -15,8 +15,8 @@ const GroupForm = props =>
 			<input type="password" className="form-control" placeholder="Password" name="password" value={props.state.password} onChange={props.handleInputChange} />
 			{props.state.createNewUser ? <input type="password" id="retype" className="form-control" placeholder="Re-Type Password" name="retype" value={props.state.retype} onChange={props.handleInputChange} /> : ""}
 		</div>
-		<p id="message" style={props.state.message === "" ? { visibility: "hidden" } : { visibility: "visible" }}> {props.state.message} </p>
-		<button onClick={props.handleGroupSubmit}>Submit</button>
+		<p id="message" style={{ visibility: props.state.formMessage ? "visible" : "hidden" }}> {props.state.formMessage} </p>
+		<button onClick={props.handleGroupSubmit} style={{ background: props.state.currentLocation ? "#0060C0" : "grey" }} >Submit</button>
 		<br />
 	</form>
 

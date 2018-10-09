@@ -8,7 +8,9 @@ import Results from "../../components/Results";
 /* 
 
 	---------  THINGS TO DO ---------
-	- make "show url" button instead copy the url to clipboard
+	- make votes part of the online obj to fix these two issues
+		- preserve votes if the center doesn't move far
+		- if two people vote at the same time, both votes should be recorded
 	- guarantee group nums are unique
 	- dropdown for user's to change what type of results appear (cafes, bars, etc.)
 
@@ -22,7 +24,7 @@ class Main extends Component {
 		password: "",
 		retype: "",
 		createNewUser: false,
-		message: "",
+		formMessage: "Please wait",
 		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 		groupNum: window.location.pathname.split("/")[2] || null,
 		showResultsPage: false,
@@ -43,11 +45,14 @@ class Main extends Component {
 		mapCenter: null,
 		zoom: 14,
 		waitingForResponse: false,
+		submitMessage: null,
 		groupCenter: null,
 		locationSubmitted: false,
 		neverSubmitted: true,
 		showCancel: false,
 		nearbyArr: [],
+		hoveredPlaceKey: null,
+		hoveredPlaceLocation: null,
 		placeKey: null,
 		placeInfo: [],
 		votedFor: null,
@@ -59,7 +64,7 @@ class Main extends Component {
 		let { name, value } = event.target;
 		this.setState({
 			[name]: value,
-			message: ""
+			formMessage: this.state.currentLocation ? "" : "Please Wait"
 		});
 	};
 
@@ -72,6 +77,7 @@ class Main extends Component {
 
 		overlayInput.mapErrMessage = "";
 		overlayInput.mapMessage = "";
+		overlayInput.copied = false;
 
 		this.setState(overlayInput);
 	};
@@ -93,7 +99,7 @@ class Main extends Component {
 			stateObj.username = "";
 			stateObj.password = "";
 			stateObj.retype = "";
-			stateObj.message = "";
+			stateObj.formMessage = this.state.currentLocation ? "" : "Please Wait";
 		}
 
 		this.handleOverlay(stateObj);
@@ -101,19 +107,20 @@ class Main extends Component {
 
 	handleGroupSubmit = event => {
 		event.preventDefault();
-
-		if (!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
-			this.setState({ message: "Please fill in all fields" });
-		}
-		else if (this.state.createNewUser && this.state.password !== this.state.retype) {
-			this.setState({
-				message: "Passwords do not match",
-				password: "",
-				retype: ""
-			});
-		}
-		else {
-			this.createGroup();
+		if (this.state.currentLocation) {
+			if (!this.state.username || !this.state.password || (this.state.createNewUser && !this.state.retype)) {
+				this.setState({ formMessage: "Please fill in all fields" });
+			}
+			else if (this.state.createNewUser && this.state.password !== this.state.retype) {
+				this.setState({
+					formMessage: "Passwords do not match",
+					password: "",
+					retype: ""
+				});
+			}
+			else {
+				this.createGroup();
+			}
 		}
 	};
 
@@ -134,10 +141,9 @@ class Main extends Component {
 		}
 
 		apiCall(apiObj).then(res => {
-			res.data.message = "";
+			res.data.formMessage = "";
 			res.data.showResultsPage = true;
 			res.data.url = `${window.location.origin}/join/${res.data.groupNum}`;
-			res.data.optionsDisplay = "url";
 			this.handleOverlay(res.data);
 		}).catch(err => {
 			console.log('err', err);
@@ -146,20 +152,20 @@ class Main extends Component {
 			switch (err.response.status) {
 				case 422:
 					stateObj = {
-						message: "That Screen Name is already taken :(",
+						formMessage: "That Screen Name is already taken :(",
 						username: ""
 					};
 					break;
 				case 401:
 					stateObj = {
-						message: "Screen Name or Password incorrect",
+						formMessage: "Screen Name or Password incorrect",
 						username: "",
 						password: ""
 					};
 					break;
 				case 409:
 					stateObj = {
-						message: "You are already logged into this group"
+						formMessage: "You are already logged into this group"
 					}
 					break;
 				default:
@@ -167,7 +173,7 @@ class Main extends Component {
 					break;
 			}
 
-			if (stateObj.message) {
+			if (stateObj.formMessage) {
 				this.setState(stateObj);
 			}
 		});
@@ -206,6 +212,7 @@ class Main extends Component {
 					stateObj.zoom = 16;
 				}
 				else if (this.state.groupCenter.lat !== snapshot.val().avgLatLng.lat || this.state.groupCenter.lng !== snapshot.val().avgLatLng.lng) {
+
 					stateObj.groupCenter = avgLatLng;
 					stateObj.votedFor = null;
 					stateObj.votesAll = {};
@@ -267,6 +274,20 @@ class Main extends Component {
 			}
 		});
 	};
+
+	showInfoWindow = (event, hoveredPlaceKey) => {
+		this.setState({
+			hoveredPlaceKey,
+			hoveredPlaceLocation: event.latLng
+		});
+	}
+
+	hideInfoWindow = () => {
+		this.setState({
+			hoveredPlaceKey: null,
+			hoveredPlaceLocation: null
+		});
+	}
 
 	showPlaceInfo = placeKey => {
 		const thisPlace = this.state.nearbyArr[placeKey];
@@ -334,7 +355,7 @@ class Main extends Component {
 		const stateObj = {
 			locationSubmitted: false,
 			showCancel: true,
-			message: "Submit a new location",
+			submitMessage: "Submit a new location",
 			placeKey: null,
 			zoom: 14
 		};
@@ -348,7 +369,8 @@ class Main extends Component {
 			showCancel: false,
 			waitingForResponse: true,
 			neverSubmitted: false,
-			currentLocation: this.state.potentialLocation
+			currentLocation: this.state.potentialLocation,
+			nearbyArr: []
 		};
 
 		this.setState(stateObj, () => {
@@ -359,18 +381,19 @@ class Main extends Component {
 			};
 
 			API.updateLocation(apiObj).then(res => {
-				let message;
+				const stateObj = {
+					submitMessage: ""
+				};
+
 				if (res.data.success) {
-					message = {
-						message: "Location submitted successfully"
-					};
+					stateObj.submitMessage = "Location submitted successfully";
 				}
 				else {
-					message = { message: "Something went wrong" };
+					stateObj.submitMessage = "Something went wrong";
 				}
 
-				this.setState(message, () => {
-					setTimeout(() => this.setState({ message: "" }), 2500);
+				this.setState(stateObj, () => {
+					setTimeout(() => this.setState({ submitMessage: "" }), 2500);
 					setTimeout(() => {
 						if (this.state.waitingForResponse) {
 							this.setState({ mapErrMessage: "Google's slow sometimes, just give it a sec :)" });
@@ -387,7 +410,7 @@ class Main extends Component {
 			locationSubmitted: true,
 			showCancel: false,
 			potentialLocation: this.state.currentLocation,
-			message: "",
+			submitMessage: "",
 			zoom: 16
 		});
 	}
@@ -409,7 +432,7 @@ class Main extends Component {
 					password: "",
 					retype: "",
 					createNewUser: false,
-					message: "",
+					formMessage: "Please wait",
 					isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 					groupNum: window.location.pathname.split("/")[2] || null,
 					showResultsPage: false,
@@ -425,6 +448,7 @@ class Main extends Component {
 					map: null,
 					mapErrMessage: null,
 					mapMessage: null,
+					submitMessage: null,
 					mapCenter: null,
 					zoom: 14,
 					waitingForResponse: false,
@@ -433,6 +457,8 @@ class Main extends Component {
 					neverSubmitted: true,
 					showCancel: false,
 					nearbyArr: [],
+					hoveredPlaceKey: null,
+					hoveredPlaceLocation: null,
 					placeKey: null,
 					placeInfo: [],
 					votedFor: null,
@@ -463,6 +489,7 @@ class Main extends Component {
 
 	//  Current Location stuff
 	success = pos => {
+		console.log("location found");
 		const locObj = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
 		// -----  Was using this when navigator api was putting me in TN -----
@@ -476,7 +503,8 @@ class Main extends Component {
 		this.setState({
 			currentLocation: locObj,
 			potentialLocation: locObj,
-			mapCenter: locObj
+			mapCenter: locObj,
+			formMessage: null
 		});
 	};
 
@@ -485,8 +513,8 @@ class Main extends Component {
 	getUserLocation = () => {
 		const options = {
 			enableHighAccuracy: true,
-			timeout: 5000,
-			maximumAge: 0
+			timeout: 20000,
+			maximumAge: 60000
 		};
 
 		navigator.geolocation.getCurrentPosition(this.success, this.error, options);
@@ -507,6 +535,8 @@ class Main extends Component {
 		const resultsProps = {
 			state: this.state,
 			handleClipboard: this.handleClipboard,
+			showInfoWindow: this.showInfoWindow,
+			hideInfoWindow: this.hideInfoWindow,
 			showPlaceInfo: this.showPlaceInfo,
 			updateMapObject: this.updateMapObject,
 			handleCenterChanged: this.handleCenterChanged,
