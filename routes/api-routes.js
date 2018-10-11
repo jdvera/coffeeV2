@@ -59,9 +59,8 @@ module.exports = app => {
     });
 
     app.put("/api/updateLocation", (req, res) => {
-        const { lat, lng } = req.body.currentLocation;
         db.UserGroups.update(
-            { lat, lng },
+            req.body.currentLocation,
             { where: { id: req.body.userGroupId } }
         ).then(() => {
             res.json({ success: true });
@@ -75,7 +74,21 @@ module.exports = app => {
 
     app.post("/api/vote", (req, res) => {
         console.log(" --------------- /api/vote --------------- ");
-        updateVotes(req.body, res);
+        const { groupNum, firebaseKey, placeId } = req.body;
+        const thisUser = firebase.database().ref(`group/${groupNum}/online/${firebaseKey}`);
+
+        thisUser.once("value").then(snapshot => {
+            if (snapshot.val()) {
+                const newObj = snapshot.val();
+                newObj.vote = placeId;
+                console.log(" --------------- updated user info", newObj);
+                thisUser.set(newObj);
+            }
+            else {
+                console.log(" --------------- /api/vote Something went wrong --------------- ");
+            }
+        });
+        res.send(true);
     });
 
     app.get("/logout/:groupNum/:firebaseKey/:userId/:votedFor", (req, res) => {
@@ -89,18 +102,10 @@ module.exports = app => {
             console.log(` --------------- UserGroups - deleted user ${req.params.userId} from group ${req.params.groupNum} --------------- `);
             onlinePeeps.child(req.params.firebaseKey).remove(() => {
                 console.log(" --------------- Firebase - removed user, checking if any others are online --------------- ");
+                res.send(true);
                 onlinePeeps.once("value").then(snapshot => {
                     if (snapshot.val()) {
-                        if (req.params.votedFor !== "0") {
-                            updateVotes({
-                                groupNum: req.params.groupNum,
-                                prevVote: req.params.votedFor,
-                                loggingOut: true
-                            }, res);
-                        }
-                        else {
-                            res.send(true);
-                        }
+                        console.log(" --------------- Firebase - others online, recalulating center --------------- ");
                         calcCenter(req.params.groupNum);
                     }
                     else {
@@ -133,7 +138,11 @@ module.exports = app => {
                 userId: dbUserGroups.userId,
                 groupNum: dbUserGroups.groupNum
             });
-            firebase.database().ref(`group/${req.body.groupNum}/online`).push(req.user.username);
+            const firebaseObj = {
+                name: req.user.username,
+                vote: null
+            }
+            firebase.database().ref(`group/${req.body.groupNum}/online`).push(firebaseObj);
         }).catch(err => {
             console.log(" --------------- db.UserGroups Create error --------------- ");
             console.log(err);
@@ -233,33 +242,31 @@ module.exports = app => {
                 }
                 else {
                     console.log(" --------------- Firebase Center updated successfully --------------- ");
-                    filterVotes(groupNum, letteredResults);
+                    checkOldVotes(groupNum, letteredResults);
                 }
             });
         });
     };
 
-    const filterVotes = (groupNum, letteredResults) => {
-        firebase.database().ref(`group/${groupNum}/votes`).once("value").then(snapshot => {
-            console.log(" --------------- Updating Firebase Votes --------------- ");
-            let votesArr = [];
-            if (snapshot.val()) {
-                snapshot.val().forEach((i) => {
-                    letteredResults.forEach((y) => {
-                        console.log('y.id ------', y.id);
-                        console.log('i.placeId -', i.placeId);
-
-                        if (i.placeId === y.id) {
-                            console.log("Id's match");
-                            votesArr.push(i);
+    const checkOldVotes = (groupNum, letteredResults) => {
+        firebase.database().ref(`group/${groupNum}/online`).once("value").then(snapshot => {
+            console.log(" --------------- Checking that voted places are still results --------------- ");
+            let onlineObj = snapshot.val();
+            for (let firebaseKey in onlineObj) {
+                if (onlineObj[firebaseKey].vote) {
+                    let foundPlace = false;
+                    letteredResults.forEach(y => {
+                        if (onlineObj[firebaseKey].vote === y.id) {
+                            foundPlace = true;
                         }
-                        console.log("---------");
                     });
-                });
-            }
-
-
-            firebase.database().ref(`group/${groupNum}/votes`).set(votesArr, err => {
+                    if(!foundPlace){
+                        onlineObj[firebaseKey].vote = null;
+                    }
+                }
+            };
+            
+            firebase.database().ref(`group/${groupNum}/online`).set(onlineObj, err => {
                 if (err) {
                     console.log(err);
                 }
@@ -270,44 +277,44 @@ module.exports = app => {
         });
     };
 
-    const updateVotes = (body, res) => {
-        firebase.database().ref(`group/${body.groupNum}/votes`).once("value").then(snapshot => {
-            console.log(` --------------- Firebase votes for ${body.groupNum} --------------- `);
-            const votesArr = snapshot.val() || [];
-            console.log("Old votes");
-            console.log(votesArr);
-            let foundThisVote = false;
-            if (snapshot.val()) {
-                votesArr.forEach((i, index) => {
-                    console.log("-----");
-                    console.log(body.prevVote);
-                    console.log(i.placeId);
-                    if (i.placeId === body.prevVote) {
-                        votesArr[index].val--;
-                    }
-                    else if (i.placeId === body.thisVote) {
-                        foundThisVote = true;
-                        votesArr[index].val++;
-                    }
-                });
-            }
-            if (!foundThisVote && !body.loggingOut) {
-                votesArr.push({
-                    placeId: body.thisVote,
-                    val: 1
-                });
-            }
-            console.log("New votes");
-            console.log(votesArr);
-            firebase.database().ref(`group/${body.groupNum}/votes`).set(votesArr, err => {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    console.log(" --------------- Firebase updated successfully --------------- ");
-                }
-            });
-            res.send(true);
-        });
-    };
+    // const updateVotes = (body, res) => {
+    //     firebase.database().ref(`group/${body.groupNum}/votes`).once("value").then(snapshot => {
+    //         console.log(` --------------- Firebase votes for ${body.groupNum} --------------- `);
+    //         const votesArr = snapshot.val() || [];
+    //         console.log("Old votes");
+    //         console.log(votesArr);
+    //         let foundThisVote = false;
+    //         if (snapshot.val()) {
+    //             votesArr.forEach((i, index) => {
+    //                 console.log("-----");
+    //                 console.log(body.prevVote);
+    //                 console.log(i.placeId);
+    //                 if (i.placeId === body.prevVote) {
+    //                     votesArr[index].val--;
+    //                 }
+    //                 else if (i.placeId === body.thisVote) {
+    //                     foundThisVote = true;
+    //                     votesArr[index].val++;
+    //                 }
+    //             });
+    //         }
+    //         if (!foundThisVote && !body.loggingOut) {
+    //             votesArr.push({
+    //                 placeId: body.thisVote,
+    //                 val: 1
+    //             });
+    //         }
+    //         console.log("New votes");
+    //         console.log(votesArr);
+    //         firebase.database().ref(`group/${body.groupNum}/votes`).set(votesArr, err => {
+    //             if (err) {
+    //                 console.log(err);
+    //             }
+    //             else {
+    //                 console.log(" --------------- Firebase updated successfully --------------- ");
+    //             }
+    //         });
+    //         res.send(true);
+    //     });
+    // };
 };

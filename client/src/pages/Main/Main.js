@@ -30,11 +30,11 @@ class Main extends Component {
 		isJoining: window.location.pathname.split("/")[1] === "join" ? true : false,
 		groupNum: window.location.pathname.split("/")[2] || null,
 		showResultsPage: false,
-		userId: null,
-		userGroupId: null,
+		userId: null,				//  This user's ID in the User table,	   defined in api-routes
+		userGroupId: null,			//  This user's ID in the UserGroup table, defined in api-routes
 
 		// - Results page
-		firebaseKey: null,
+		firebaseKey: null,			//  This user's key in Firebase's Online object
 		onlineArr: [],
 		optionsDisplay: null,
 		url: null,
@@ -58,7 +58,7 @@ class Main extends Component {
 		placeKey: null,
 		placeInfo: [],
 		votedFor: null,
-		votesAllArr: []
+		votesArr: []
 	};
 
 	handleInputChange = event => {
@@ -199,7 +199,6 @@ class Main extends Component {
 		//  -- Center listener
 		firebase.database().ref(`group/${this.state.groupNum}/center`).on('value', centerSnap => {
 			if (centerSnap.val()) {
-				console.log("firebase Center");
 				const googleResults = centerSnap.val().googleResults || [];
 				const { avgLatLng } = centerSnap.val();
 
@@ -218,36 +217,21 @@ class Main extends Component {
 					stateObj.zoom = isMobile ? 15 : 16;
 				}
 				else if (this.state.groupCenter.lat !== centerSnap.val().avgLatLng.lat || this.state.groupCenter.lng !== centerSnap.val().avgLatLng.lng) {
-					console.log("This user has submitted stuff");
 					let foundPlace = false;
-					let foundVote = false;
-					console.log("google found " + googleResults.length + " results");
-					googleResults.forEach((i, index) => {
-						console.log(" - Looking at " + i.name);
-						if (i.id === this.state.votedFor) {
-							console.log(" --- This user voted for this place");
-							foundVote = true;
-						}
-						if (this.state.placeKey !== null) {
-							console.log(" --- This user was looking at " + this.state.nearbyArr[this.state.placeKey].name);
-							console.log(" --- Its id", this.state.nearbyArr[this.state.placeKey].id)
-							console.log(' --- i.id: ', i.id);
+					if (this.state.placeKey !== null) {
+						googleResults.forEach((i, index) => {
 							if (i.id === this.state.nearbyArr[this.state.placeKey].id) {
-								console.log(` --- ${this.state.nearbyArr[this.state.placeKey].name} is still here --- `)
 								foundPlace = index;
 							}
-							if(!foundPlace && !foundVote) {
-								console.log(" --- " + this.state.nearbyArr[this.state.placeKey].name + " is gone");
-							}
-						}
-					});
+						});
+						//  Has to be !== false because it can be 0
+						stateObj.placeInfo = (foundPlace !== false) ? this.state.placeInfo : [];
+						stateObj.placeKey = (foundPlace !== false) ? foundPlace : null;
+					}
 					stateObj.groupCenter = avgLatLng;
-					stateObj.votedFor = foundVote ? this.state.votedFor : null;
 					stateObj.zoom = 14;
-					stateObj.placeInfo = foundPlace !== false ? this.state.placeInfo : [];
-					stateObj.placeKey = foundPlace !== false ? foundPlace : null;
 					stateObj.mapMessage = "Group Center Changed";
-
+					
 					if (this.state.locationSubmitted) {
 						stateObj.zoom = isMobile ? 15 : 16;
 					}
@@ -265,25 +249,46 @@ class Main extends Component {
 			}
 		});
 
-		//  -- Votes listener
-		firebase.database().ref(`group/${this.state.groupNum}/votes`).on('value', snapshot => {
-			this.setState({
-				votesAllArr: snapshot.val() || []
-			});
-		});
-
 		//  -- Online listener
 		firebase.database().ref(`group/${this.state.groupNum}/online`).on('value', snapshot => {
 			if (snapshot.val()) {
 				const stateObj = {
-					onlineArr: []
+					onlineArr: [],
+					votesArr: []
 				};
-				for (const item in snapshot.val()) {
-					if (!this.state.firebaseKey && snapshot.val()[item] === this.state.username) {
-						stateObj.firebaseKey = item;
+				for (let firebaseKey in snapshot.val()) {
+					//  No matter what, save everyone's name to the onlineArr
+					stateObj.onlineArr.push(snapshot.val()[firebaseKey].name);
+
+					//  If this is the user's first time logging in, remember their firebaseKey
+					if (!this.state.firebaseKey && snapshot.val()[firebaseKey].name === this.state.username) {
+						stateObj.firebaseKey = firebaseKey;
+						if(!snapshot.val()[firebaseKey].vote) {
+							//  The center may have moved and the users vote/placeKey isn't a result anymore
+							stateObj.votedFor = null;
+						}
 					}
-					stateObj.onlineArr.push(snapshot.val()[item]);
+
+					if (snapshot.val()[firebaseKey].vote) {
+						//  If this user has voted for something, add them to the votesArr
+						let foundPlace = false;
+						stateObj.votesArr.forEach((elem, index) => {
+							//  For each vote already in the arr, check if this user also voted for that place
+							if (elem.placeId === snapshot.val()[firebaseKey].vote) {
+								foundPlace = true;
+								stateObj.votesArr[index].val++;
+							}
+						});
+						//  If their place isn't in the arr, add the place to it
+						if(!foundPlace) {
+							stateObj.votesArr.push({
+								placeId: snapshot.val()[firebaseKey].vote,
+								val: 1
+							})
+						}
+					}
 				}
+
 				this.setState(stateObj);
 			}
 		});
@@ -324,19 +329,16 @@ class Main extends Component {
 	}
 
 	handleVote = () => {
-
-		if (this.state.votedFor !== this.state.nearbyArr[this.state.placeKey].id) {
-			API.vote({
-				groupNum: this.state.groupNum,
-				prevVote: this.state.votedFor,
-				thisVote: this.state.nearbyArr[this.state.placeKey].id
-			}).then(() => {
-				this.setState({
-					submitMessage: "Vote Submitted",
-					votedFor: this.state.nearbyArr[this.state.placeKey].id
-				}, () => { setTimeout(() => this.setState({ submitMessage: "" }), 3000) });
-			}).catch(err => console.log("err:", err));
-		}
+		API.vote({
+			groupNum: this.state.groupNum,
+			firebaseKey: this.state.firebaseKey,
+			placeId: this.state.nearbyArr[this.state.placeKey].id
+		}).then(() => {
+			this.setState({
+				submitMessage: "Vote Submitted",
+				votedFor: this.state.nearbyArr[this.state.placeKey].id
+			}, () => { setTimeout(() => this.setState({ submitMessage: "" }), 3000) });
+		}).catch(err => console.log("err:", err));
 	}
 
 	handleCenterChanged = latLng => {
@@ -459,7 +461,7 @@ class Main extends Component {
 					placeKey: null,
 					placeInfo: [],
 					votedFor: null,
-					votesAllArr: []
+					votesArr: []
 				});
 			}).catch(err => console.log("err: ", err));
 		}

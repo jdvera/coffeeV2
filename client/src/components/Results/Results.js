@@ -81,15 +81,15 @@ class Results extends Component {
 				<div id="people-container" className="row">
 					<div id="online">
 						Online:
-						<ul id="people" style={(this.props.state.votesAllArr.length > 0 && this.props.state.locationSubmitted) ? { borderRightStyle: "solid", borderRightRadius: "2px", borderColor: "black" } : {}}>
+						<ul id="people" style={(this.props.state.votesArr.length > 0 && this.props.state.locationSubmitted) ? { borderRightStyle: "solid", borderRightRadius: "2px", borderColor: "black" } : {}}>
 							{this.props.state.onlineArr.map((e, i) => <li key={i}>{e}</li>)}
 						</ul>
 					</div>
 
-					{(this.props.state.votesAllArr.length > 0 && this.props.state.locationSubmitted) &&
+					{(this.props.state.votesArr.length > 0 && this.props.state.locationSubmitted) &&
 						<div id="votes-container">
 							Votes:
-							{this.props.state.votesAllArr.map(e => {
+							{this.props.state.votesArr.map(e => {
 								this.props.state.nearbyArr.forEach(element => {
 									if (e.placeId === element.id) {
 										e.name = element.name;
@@ -110,7 +110,14 @@ class Results extends Component {
 					<div id="info-container">
 						Location Information <br />
 						{this.props.state.placeInfo.map((info, key) => <span key={key}>{key === 3 ? <a href={info} target="_blank">Directions on Google</a> : info}<br /></span>)}
-						<button id="vote-button" onClick={this.props.handleVote}>Vote</button>
+						{(this.props.state.votedFor !== this.props.state.nearbyArr[this.props.state.placeKey].id)
+						? <button id="vote-button" onClick={this.props.handleVote}>
+							Vote
+						  </button>
+						: <button id="vote-button" style={{ background: "grey" }}>
+							You voted here
+						  </button>
+						}
 					</div>
 				</div>}
 
