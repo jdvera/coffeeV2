@@ -2,22 +2,30 @@ import axios from "axios";
 
 export default {
     signup: userData => {
-        console.log("Axios createGroupNewUser");
+        console.log("axios createGroupNewUser");
         return axios.post(`/api/signup`, userData);
     },
 
     login: userData => {
-        console.log("Axios createGroupLogin");
+        console.log("axios createGroupLogin");
         return axios.post(`/api/login`, userData);
     },
 
     updateLocation: userData => {
-        console.log("Axios updateLocation");
+        console.log("axios updateLocation");
         return axios.put(`/api/updateLocation`, userData);
     },
 
-    logout: (groupNum, firebaseKey, userId) => {
-        console.log("Axios logging user out");
-        return axios.get(`/logout/${groupNum}/${firebaseKey}/${userId}`);
+    vote: voteData => {
+        console.log("axios vote");
+        return axios.post(`/api/vote`, voteData);
+    },
+
+    logout: (groupNum, firebaseKey, userId, votedFor) => {
+        console.log("axios logging user out");
+        if(!votedFor) {
+            votedFor = 0;
+        }
+        return axios.get(`/logout/${groupNum}/${firebaseKey}/${userId}/${votedFor}`);
     }
 }

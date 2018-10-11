@@ -4,6 +4,7 @@ import API from "../../utils/API";
 import firebase from "../../utils/firebase";
 import Home from "../../components/Home";
 import Results from "../../components/Results";
+import { isMobile } from "react-device-detect";
 
 /* 
 
@@ -57,7 +58,6 @@ class Main extends Component {
 		placeKey: null,
 		placeInfo: [],
 		votedFor: null,
-		votesAll: {},
 		votesAllArr: []
 	};
 
@@ -81,7 +81,7 @@ class Main extends Component {
 		overlayInput.copied = false;
 
 		this.setState(overlayInput, () => {
-			if(overlayInput.logout) {
+			if (overlayInput.logout) {
 				this.handleLogout();
 			}
 		});
@@ -197,10 +197,11 @@ class Main extends Component {
 
 	loadFirebase = () => {
 		//  -- Center listener
-		firebase.database().ref(`group/${this.state.groupNum}/center`).on('value', snapshot => {
-			if (snapshot.val()) {
-				const googleResults = snapshot.val().googleResults || [];
-				const { avgLatLng } = snapshot.val();
+		firebase.database().ref(`group/${this.state.groupNum}/center`).on('value', centerSnap => {
+			if (centerSnap.val()) {
+				console.log("firebase Center");
+				const googleResults = centerSnap.val().googleResults || [];
+				const { avgLatLng } = centerSnap.val();
 
 				const stateObj = {
 					waitingForResponse: false,
@@ -214,25 +215,45 @@ class Main extends Component {
 				}
 				else if (!this.state.groupCenter) {
 					stateObj.groupCenter = avgLatLng;
-					stateObj.zoom = 16;
+					stateObj.zoom = isMobile ? 15 : 16;
 				}
-				else if (this.state.groupCenter.lat !== snapshot.val().avgLatLng.lat || this.state.groupCenter.lng !== snapshot.val().avgLatLng.lng) {
-
+				else if (this.state.groupCenter.lat !== centerSnap.val().avgLatLng.lat || this.state.groupCenter.lng !== centerSnap.val().avgLatLng.lng) {
+					console.log("This user has submitted stuff");
+					let foundPlace = false;
+					let foundVote = false;
+					console.log("google found " + googleResults.length + " results");
+					googleResults.forEach((i, index) => {
+						console.log(" - Looking at " + i.name);
+						if (i.id === this.state.votedFor) {
+							console.log(" --- This user voted for this place");
+							foundVote = true;
+						}
+						if (this.state.placeKey !== null) {
+							console.log(" --- This user was looking at " + this.state.nearbyArr[this.state.placeKey].name);
+							console.log(" --- Its id", this.state.nearbyArr[this.state.placeKey].id)
+							console.log(' --- i.id: ', i.id);
+							if (i.id === this.state.nearbyArr[this.state.placeKey].id) {
+								console.log(` --- ${this.state.nearbyArr[this.state.placeKey].name} is still here --- `)
+								foundPlace = index;
+							}
+							if(!foundPlace && !foundVote) {
+								console.log(" --- " + this.state.nearbyArr[this.state.placeKey].name + " is gone");
+							}
+						}
+					});
 					stateObj.groupCenter = avgLatLng;
-					stateObj.votedFor = null;
-					stateObj.votesAll = {};
+					stateObj.votedFor = foundVote ? this.state.votedFor : null;
 					stateObj.zoom = 14;
-					stateObj.votesAllArr = [];
-					stateObj.placeInfo = [];
-					stateObj.placeKey = null;
+					stateObj.placeInfo = foundPlace !== false ? this.state.placeInfo : [];
+					stateObj.placeKey = foundPlace !== false ? foundPlace : null;
 					stateObj.mapMessage = "Group Center Changed";
 
 					if (this.state.locationSubmitted) {
-						stateObj.zoom = 16;
+						stateObj.zoom = isMobile ? 15 : 16;
 					}
 				}
 				else if (this.state.waitingForResponse) {
-					stateObj.zoom = 16;
+					stateObj.zoom = isMobile ? 15 : 16;
 					stateObj.mapMessage = "New location submitted, but center didn't change.";
 				}
 
@@ -246,21 +267,9 @@ class Main extends Component {
 
 		//  -- Votes listener
 		firebase.database().ref(`group/${this.state.groupNum}/votes`).on('value', snapshot => {
-			if (snapshot.val()) {
-				const votesAllArr = [];
-				for (const place in snapshot.val()) {
-					const newObj = {
-						placeId: place,
-						val: snapshot.val()[place]
-					};
-					votesAllArr.push(newObj);
-				}
-
-				this.setState({
-					votesAll: snapshot.val(),
-					votesAllArr: votesAllArr
-				});
-			}
+			this.setState({
+				votesAllArr: snapshot.val() || []
+			});
 		});
 
 		//  -- Online listener
@@ -314,26 +323,19 @@ class Main extends Component {
 		this.setState({ placeKey, placeInfo });
 	}
 
-	handleVote = event => {
-		event.preventDefault();
-		const prevVote = this.state.votedFor;
-		const thisVote = this.state.nearbyArr[this.state.placeKey].id;
-		if (prevVote !== thisVote) {
-			const votesAll = this.state.votesAll;
-			if (prevVote !== null) {
-				votesAll[prevVote]--;
-			}
-			votesAll[thisVote] = votesAll[thisVote] ? votesAll[thisVote] + 1 : 1;
+	handleVote = () => {
 
-			const stateObj = {
-				votedFor: thisVote,
-				votesAll: votesAll
-			};
-
-			this.setState(stateObj, () => {
-				firebase.database().ref(`group/${this.state.groupNum}/votes`).set(votesAll);
-			})
-
+		if (this.state.votedFor !== this.state.nearbyArr[this.state.placeKey].id) {
+			API.vote({
+				groupNum: this.state.groupNum,
+				prevVote: this.state.votedFor,
+				thisVote: this.state.nearbyArr[this.state.placeKey].id
+			}).then(() => {
+				this.setState({
+					submitMessage: "Vote Submitted",
+					votedFor: this.state.nearbyArr[this.state.placeKey].id
+				}, () => { setTimeout(() => this.setState({ submitMessage: "" }), 3000) });
+			}).catch(err => console.log("err:", err));
 		}
 	}
 
@@ -364,7 +366,6 @@ class Main extends Component {
 			placeKey: null,
 			zoom: 14
 		};
-
 		this.setState(stateObj);
 	}
 
@@ -416,21 +417,13 @@ class Main extends Component {
 			showCancel: false,
 			potentialLocation: this.state.currentLocation,
 			submitMessage: "",
-			zoom: 16
+			zoom: isMobile ? 15 : 16
 		});
 	}
 
 	handleLogout = () => {
 		if (this.state.showResultsPage) {
-			const allVotes = this.state.votesAll;
-			for (const p in allVotes) {
-				if (allVotes[p] === this.state.votedFor) {
-					allVotes[p]--;
-				}
-			}
-			firebase.database().ref('group/' + this.state.groupNum + '/votes').set(allVotes);
-
-			API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId).then(res => {
+			API.logout(this.state.groupNum, this.state.firebaseKey, this.state.userId, this.state.votedFor).then(() => {
 				this.setState({
 					username: "",
 					password: "",
@@ -466,17 +459,15 @@ class Main extends Component {
 					placeKey: null,
 					placeInfo: [],
 					votedFor: null,
-					votesAll: {},
 					votesAllArr: []
 				});
 			}).catch(err => console.log("err: ", err));
 		}
-	};
+	}
 
 	componentDidMount() {
 		if (this.state.isJoining) {
 			firebase.database().ref(`group/${this.state.groupNum}`).once("value").then(snapshot => {
-				console.log("snapshot:", snapshot.val());
 				if (!snapshot.val()) {
 					window.location.href = window.location.origin + "/fourohfour";
 				}

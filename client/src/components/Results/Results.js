@@ -106,7 +106,7 @@ class Results extends Component {
 					}
 				</div>
 
-				{this.props.state.placeKey !== null && <div className="row">
+				{this.props.state.placeInfo.length > 0 && <div className="row">
 					<div id="info-container">
 						Location Information <br />
 						{this.props.state.placeInfo.map((info, key) => <span key={key}>{key === 3 ? <a href={info} target="_blank">Directions on Google</a> : info}<br /></span>)}
