@@ -9,6 +9,7 @@ import { isMobile } from "react-device-detect";
 /* 
 
 	---------  THINGS TO DO ---------
+	- CHANGE LOCATION IS BROKEN: Results.js line 
 	- ask about help modal on mobile
 	- make votes part of the online obj to fix these two issues
 		- preserve votes if the center doesn't move far
@@ -58,6 +59,7 @@ class Main extends Component {
 		placeKey: null,
 		placeInfo: [],
 		votedFor: null,
+		canVote: true,
 		votesArr: []
 	};
 
@@ -325,7 +327,9 @@ class Main extends Component {
 			`https://www.google.com/maps/dir/?api=1&origin=${personLoc.lat},${personLoc.lng}&destination=${thisPlace.vicinity}`
 		];
 
-		this.setState({ placeKey, placeInfo });
+		const canVote = this.state.votedFor !== thisPlace.id
+
+		this.setState({ placeKey, placeInfo, canVote });
 	}
 
 	handleVote = () => {
@@ -336,6 +340,7 @@ class Main extends Component {
 		}).then(() => {
 			this.setState({
 				submitMessage: "Vote Submitted",
+				canVote: false,
 				votedFor: this.state.nearbyArr[this.state.placeKey].id
 			}, () => { setTimeout(() => this.setState({ submitMessage: "" }), 3000) });
 		}).catch(err => console.log("err:", err));
@@ -365,7 +370,6 @@ class Main extends Component {
 			locationSubmitted: false,
 			showCancel: true,
 			submitMessage: "Submit a new location",
-			placeKey: null,
 			zoom: 14
 		};
 		this.setState(stateObj);
@@ -377,8 +381,7 @@ class Main extends Component {
 			showCancel: false,
 			waitingForResponse: true,
 			neverSubmitted: false,
-			currentLocation: this.state.potentialLocation,
-			nearbyArr: []
+			currentLocation: this.state.potentialLocation
 		};
 
 		this.setState(stateObj, () => {
@@ -461,6 +464,7 @@ class Main extends Component {
 					placeKey: null,
 					placeInfo: [],
 					votedFor: null,
+					canVote: true,
 					votesArr: []
 				});
 			}).catch(err => console.log("err: ", err));

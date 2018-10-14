@@ -106,11 +106,11 @@ class Results extends Component {
 					}
 				</div>
 
-				{this.props.state.placeInfo.length > 0 && <div className="row">
+				{(this.props.state.placeInfo.length > 0 && this.props.state.locationSubmitted) && <div className="row">
 					<div id="info-container">
 						Location Information <br />
 						{this.props.state.placeInfo.map((info, key) => <span key={key}>{key === 3 ? <a href={info} target="_blank">Directions on Google</a> : info}<br /></span>)}
-						{(this.props.state.votedFor !== this.props.state.nearbyArr[this.props.state.placeKey].id)
+						{this.props.state.canVote
 						? <button id="vote-button" onClick={this.props.handleVote}>
 							Vote
 						  </button>
